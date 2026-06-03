@@ -1,0 +1,16 @@
+{
+  "name": "Java Drip Coffee",
+  "short_name": "Java Drip Coffee",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f6f6",
+  "theme_color": "#b30065",
+  "description": "Specialty coffee, espresso drinks, and pickup ordering in Gallup, New Mexico.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

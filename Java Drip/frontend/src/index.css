@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background-color: #f6f6f6;
+    color: #2d2f2f;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Epilogue', sans-serif;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .kinetic-gradient {
+    background: linear-gradient(135deg, #b30065 0%, #ff6ea9 100%);
+  }
+
+  .font-variation-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ─────────────────────────────────────────
+   Scroll Reveal
+   ───────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition-property: opacity, transform;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 750ms;
+}
+
+.reveal.from-left  { transform: translateX(-32px); }
+.reveal.from-right { transform: translateX(32px); }
+.reveal.from-fade  { transform: none; }
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* ─────────────────────────────────────────
+   Hero entrance (above-fold, on load)
+   ───────────────────────────────────────── */
+@keyframes heroSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-anim {
+  opacity: 0;
+  animation: heroSlideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.hero-anim-1 { animation-delay: 0.05s; }
+.hero-anim-2 { animation-delay: 0.2s; }
+.hero-anim-3 { animation-delay: 0.35s; }
+.hero-anim-4 { animation-delay: 0.5s; }
+
+/* ─────────────────────────────────────────
+   Signed-in toast
+   ───────────────────────────────────────── */
+@keyframes loginToastLifecycle {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -14px) scale(0.98);
+  }
+  12% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  82% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -14px) scale(0.98);
+  }
+}
+
+.login-toast {
+  animation: loginToastLifecycle 4.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─────────────────────────────────────────
+   Page transition (route change fade)
+   ───────────────────────────────────────── */
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+  animation: pageFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─────────────────────────────────────────
+   Cookie banner slide-up
+   ───────────────────────────────────────── */
+@keyframes cookieSlideUp {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─────────────────────────────────────────
+   Mobile nav slide-down
+   ───────────────────────────────────────── */
+@keyframes mobileNavSlide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mobile-nav-enter {
+  animation: mobileNavSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

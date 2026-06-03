@@ -1,0 +1,58 @@
+services:
+  - type: web
+    name: java-drip-coffee
+    runtime: node
+    plan: starter
+    region: oregon
+    buildCommand: npm install && npm --prefix "./Java Drip/backend" install && npm --prefix "./Java Drip/frontend" install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    disk:
+      name: java-drip-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      - key: SQLITE_DB_PATH
+        value: /var/data/javadrip.db
+      - key: FRONTEND_URL
+        sync: false
+      - key: ADMIN_SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_BOOTSTRAP_EMAIL
+        sync: false
+      - key: ADMIN_BOOTSTRAP_PASSWORD
+        sync: false
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: VITE_CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: EMAIL_TO
+        value: javadripcoffee@gmail.com
+      - key: ORDER_NOTIFICATION_EMAIL
+        sync: false
+      - key: SQUARE_ENVIRONMENT
+        value: sandbox
+      - key: SQUARE_ACCESS_TOKEN
+        sync: false
+      - key: SQUARE_LOCATION_ID
+        sync: false
+      - key: SQUARE_WEBHOOK_SIGNATURE_KEY
+        sync: false
+      - key: SQUARE_WEBHOOK_NOTIFICATION_URL
+        sync: false
+      - key: SQUARE_API_VERSION
+        value: "2025-09-24"

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /order/
+Disallow: /checkout
+Disallow: /signin
+Disallow: /profile
+
+Sitemap: https://javadrip.coffee/sitemap.xml

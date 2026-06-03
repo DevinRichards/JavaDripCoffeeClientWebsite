@@ -187,7 +187,7 @@ SQUARE_WEBHOOK_NOTIFICATION_URL=https://your-domain.com/api/payments/square/webh
 SQUARE_API_VERSION=2025-09-24
 ```
 
-If the Square variables are not set, checkout keeps online payment disabled and continues to support pay-at-pickup orders.
+Pickup checkout requires Square online payment. If the Square variables are not set, checkout stays disabled until online payment is configured.
 
 ## Database Notes
 

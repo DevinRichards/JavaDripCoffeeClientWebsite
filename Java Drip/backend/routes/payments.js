@@ -101,8 +101,8 @@ router.post('/square/checkout', async (req, res) => {
     return res.status(error.statusCode || 500).json({
       success: false,
       message: error.statusCode === 503
-        ? 'Online payment is not configured yet. Please choose pay at pickup for now.'
-        : 'Could not start Square checkout. Please try again or choose pay at pickup.',
+        ? 'Online payment is not configured yet. Pickup orders cannot be submitted until Square checkout is available.'
+        : 'Could not start Square checkout. Please try again.',
     });
   }
 });

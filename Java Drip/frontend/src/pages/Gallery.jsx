@@ -2,6 +2,45 @@ import { useState } from 'react';
 import Reveal from '../components/Reveal';
 import { SOCIAL_PROFILES } from '../content/socialMedia';
 
+const MEDIA_PLACEHOLDERS = [
+  {
+    title: 'Drink Gallery',
+    type: 'Photos',
+    icon: 'local_cafe',
+    description: 'A branded space for drink photography if owned media becomes available later.',
+  },
+  {
+    title: 'Store + Team',
+    type: 'Photos',
+    icon: 'groups',
+    description: 'A dedicated area for real storefront, staff, and community photos.',
+  },
+  {
+    title: 'Behind The Bar',
+    type: 'Video',
+    icon: 'movie',
+    description: 'Approved reels, drink builds, and short-form cafe clips can be added here.',
+  },
+  {
+    title: 'Seasonal Features',
+    type: 'Photos',
+    icon: 'auto_awesome',
+    description: 'A future home for specials, limited drinks, and campaign visuals.',
+  },
+  {
+    title: 'Community Moments',
+    type: 'Photos',
+    icon: 'favorite',
+    description: 'A place for real event, customer, and Gallup community highlights.',
+  },
+  {
+    title: 'Social Clips',
+    type: 'Video',
+    icon: 'play_circle',
+    description: 'Embeddable or uploaded platform clips can be featured here after approval.',
+  },
+];
+
 function SafeImage({ src, alt, className }) {
   const [failed, setFailed] = useState(false);
 
@@ -78,8 +117,8 @@ export default function Gallery() {
           <div className="rounded-[32px] bg-surface-container-low p-6 shadow-sm">
             <p className="font-label text-[10px] uppercase tracking-widest font-bold text-primary mb-3">Social Wall First</p>
             <p className="text-on-surface-variant leading-relaxed">
-              Choose a channel below to spotlight the active Java Drip Coffee profile. The secondary media gallery is
-              paused while the social integration carries this page.
+              Choose a channel below to spotlight the active Java Drip Coffee profile. Below that, the media gallery is
+              intentionally social-first with branded placeholders instead of AI-generated imagery.
             </p>
           </div>
         </Reveal>
@@ -183,14 +222,63 @@ export default function Gallery() {
                     </div>
                   ) : (
                     <div className="mt-8 rounded-[24px] border border-brand-charcoal/10 bg-surface-container-low p-5 text-sm text-on-surface-variant">
-                      This profile is linked directly from the handle. We can replace this card with an official embed
-                      or client-approved media once the platform access/content is confirmed.
+                      This profile is linked directly from the handle. This area can stay social-first until official
+                      embeds or owned media are available.
                     </div>
                   )}
                 </div>
               </div>
             </div>
           </Reveal>
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-6 sm:px-8 py-16 lg:py-20">
+        <Reveal>
+          <div className="mb-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+            <div>
+              <p className="font-label uppercase tracking-widest text-xs font-bold text-primary mb-3">Media Gallery</p>
+              <h2 className="font-headline text-5xl font-black tracking-tighter text-on-surface">
+                BRANDED MEDIA
+                <br />
+                PLACEHOLDERS
+              </h2>
+            </div>
+            <p className="text-on-surface-variant max-w-xl leading-relaxed">
+              These cards keep the gallery structure live without implying the client needs to provide media right now.
+              No AI images are being used here.
+            </p>
+          </div>
+        </Reveal>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {MEDIA_PLACEHOLDERS.map((item, index) => (
+            <Reveal key={item.title} delay={index * 60}>
+              <div className="group relative min-h-[360px] overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,_#f7f2ef_0%,_#ede5e9_52%,_#d9dcde_100%)] p-7 shadow-sm transition-all hover:-translate-y-1 hover:shadow-editorial">
+                <div className="absolute inset-0 opacity-75 [background-image:radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.9),transparent_28%),radial-gradient(circle_at_82%_12%,rgba(179,0,101,0.14),transparent_24%),linear-gradient(135deg,transparent_0%,rgba(48,50,52,0.12)_100%)]" />
+                <div className="relative z-10 flex h-full min-h-[306px] flex-col justify-between">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex gap-2">
+                      <span className="rounded-full bg-white px-4 py-2 font-label text-[10px] font-bold uppercase tracking-widest text-primary">
+                        {item.type}
+                      </span>
+                      <span className="rounded-full bg-brand-charcoal/80 px-4 py-2 font-label text-[10px] font-bold uppercase tracking-widest text-white">
+                        Pending
+                      </span>
+                    </div>
+                    <span className="material-symbols-outlined text-4xl text-primary/80">{item.icon}</span>
+                  </div>
+                  <div>
+                    <p className="mb-3 font-label text-[10px] font-bold uppercase tracking-[0.24em] text-primary">
+                      Java Drip Coffee
+                    </p>
+                    <h3 className="font-headline text-3xl font-black tracking-tight text-on-surface">{item.title}</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{item.description}</p>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </section>
 

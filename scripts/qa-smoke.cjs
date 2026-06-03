@@ -175,6 +175,7 @@ async function main() {
     customer_email: `smoke+${Date.now()}@javadrip.coffee`,
     customer_phone: '505-000-0000',
     order_type: 'pickup',
+    payment_method: 'online',
     pickup_time: getValidSmokePickupTime(primaryLocation),
     location_id: primaryLocation?.id,
     notes: '[SMOKE TEST] Created by qa-smoke.cjs',
@@ -197,7 +198,7 @@ async function main() {
   assert(createOrder.status === 201, `Order creation expected 201, received ${createOrder.status}`);
   assert(createOrder.body?.data?.id, 'Order creation did not return an order id');
   assert(createOrder.body?.data?.public_view_token, 'Order creation did not return a public view token');
-  assert(createOrder.body?.data?.status === 'pending_confirmation', 'Smoke order was not created in pending_confirmation state');
+  assert(createOrder.body?.data?.status === 'pending_payment', 'Smoke order was not created in pending_payment state');
   assert(Number(createOrder.body?.data?.total) > 0, 'Smoke order total was not greater than zero');
   checks.push('order-create');
 

@@ -7,7 +7,7 @@ import { fetchAdminAuthStatus } from '../api';
 const ADMIN_FEATURES = [
   { icon: 'sell', title: 'Update prices fast', desc: 'Adjust pricing, badges, and availability in a few clicks.' },
   { icon: 'restaurant_menu', title: 'Add new drinks', desc: 'Create seasonal drops, snacks, and featured drinks without waiting on a dev push.' },
-  { icon: 'inventory_2', title: 'Confirm pickup orders', desc: 'Review incoming requests, set the pickup time, and email customers before they pay at the store.' },
+  { icon: 'inventory_2', title: 'Confirm pickup orders', desc: 'Review paid pickup orders, set the pickup time, and email customers when the order is ready.' },
 ];
 
 export default function AdminSignIn() {

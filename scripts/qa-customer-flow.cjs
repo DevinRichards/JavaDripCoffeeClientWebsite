@@ -14,9 +14,9 @@ function insertLinkedOrder(db, order) {
   db.prepare(`
     INSERT INTO orders (
       id, public_view_token, customer_clerk_id, customer_name, customer_email, customer_phone,
-      order_type, pickup_time, location_id, status, payment_status, payment_method, subtotal, tax, fees, total, notes
+      order_type, pickup_time, location_id, status, payment_status, payment_method, payment_provider, subtotal, tax, fees, total, notes
     )
-    VALUES (?, ?, ?, ?, ?, ?, 'pickup', 'ASAP', ?, 'confirmed', 'unpaid', 'pay_at_pickup', 4, 0.34, 0, 4.34, ?)
+    VALUES (?, ?, ?, ?, ?, ?, 'pickup', 'ASAP', ?, 'confirmed', 'paid', 'online', 'square', 4, 0.34, 0, 4.34, ?)
   `).run(
     order.id,
     order.publicViewToken,

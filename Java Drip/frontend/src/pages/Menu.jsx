@@ -10,14 +10,15 @@ const ADDON_CATEGORY_IDS = new Set(['add-ons', 'milk-options']);
 const ADDON_CATEGORY_NAMES = new Set(['add ons', 'milk options']);
 
 const FALLBACK_IMAGES = {
-  'Cold Fusion Brew': 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=900&q=80&fit=crop',
-  'Kinetic Drip': 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=900&q=80&fit=crop',
-  'Neon Glow Latte': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80&fit=crop',
-  'Neon Roast': 'https://images.unsplash.com/photo-1494314671902-399b18174975?w=900&q=80&fit=crop',
-  'Macro Muffin': 'https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=900&q=80&fit=crop',
-  'Keto Brownie': 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=900&q=80&fit=crop',
-  'Almond Croissant': 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=900&q=80&fit=crop',
-  'Energy Balls': 'https://images.unsplash.com/photo-1571748982800-fa51082c2224?w=900&q=80&fit=crop',
+  'Small Refresher': 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=900&q=80&fit=crop',
+  'Small Latte': 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=900&q=80&fit=crop',
+  'Small Roadrunner': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80&fit=crop',
+  'Small Chai': 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=900&q=80&fit=crop',
+  'Small Lemonade': 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=900&q=80&fit=crop',
+  'Small Tea': 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=900&q=80&fit=crop',
+  'Small Matcha': 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=900&q=80&fit=crop',
+  'Small Coffee': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80&fit=crop',
+  'Cake Pop': 'https://images.unsplash.com/photo-1614707267537-b85aaf00c4b7?w=900&q=80&fit=crop',
 };
 
 function preloadImages(urls) {
@@ -351,7 +352,7 @@ export default function Menu() {
           The<br />Pulse<br /><span className="text-primary italic">Menu</span>
         </h1>
         <p className="hero-anim hero-anim-2 w-full max-w-[19rem] sm:max-w-2xl text-lg text-on-surface-variant font-medium leading-relaxed">
-          Build pickup orders directly on the site, customize drinks with add-ons, and let the store confirm the timing before you pay at the counter. Delivery still finishes through DoorDash.
+          Build pickup orders directly on the site, customize drinks with add-ons, pay online through Square, and let the store confirm pickup timing. Delivery still finishes through DoorDash.
         </p>
       </div>
 

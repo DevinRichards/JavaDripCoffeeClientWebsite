@@ -129,7 +129,7 @@ export default function OrderConfirmation() {
                       ? 'Watch your email for the confirmed pickup time before heading over.'
                       : order.payment_status === 'paid'
                       ? 'Please present this order ID when you arrive. Payment has already been received.'
-                      : 'Please present this order ID and pay at the counter when you arrive.'}
+                      : 'Please contact the store if this order was not completed through online payment.'}
                   </p>
                 </div>
               </div>
@@ -181,7 +181,7 @@ export default function OrderConfirmation() {
                     ? order.payment_status === 'paid'
                       ? 'Paid online'
                       : 'Square payment pending'
-                    : 'Pay at pickup'}
+                    : 'Payment not completed online'}
                 </span>
               </div>
             </div>

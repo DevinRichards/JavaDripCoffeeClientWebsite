@@ -74,7 +74,7 @@ async function sendPickupOrderReceivedEmail(order) {
       `Estimated tax: ${formatMoney(order.tax)}`,
       `Estimated fees: ${formatMoney(order.fees)}`,
       `Estimated total: ${formatMoney(order.total)}`,
-      `Payment: ${order.payment_method === 'online' ? `Square online (${order.payment_status || 'pending'})` : 'Pay at pickup'}`,
+      `Payment: ${order.payment_status === 'paid' ? 'Paid online through Square' : 'Square online payment pending'}`,
     ].join('\n'),
   });
 
@@ -96,7 +96,7 @@ async function sendPickupOrderConfirmedEmail(order) {
       `Your pickup order has been confirmed by Java Drip Coffee.`,
       `Order ID: ${order.id}`,
       `Pickup time: ${order.confirmation_pickup_time || order.pickup_time || 'We will contact you shortly'}`,
-      `Payment: ${order.payment_status === 'paid' ? 'Paid online' : 'Pay at pickup'}`,
+      `Payment: ${order.payment_status === 'paid' ? 'Paid online through Square' : 'Online payment pending'}`,
       '',
       'Items:',
       renderItemsText(order.items),

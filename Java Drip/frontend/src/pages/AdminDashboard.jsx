@@ -503,7 +503,7 @@ export default function AdminDashboard({ section = 'orders' }) {
                 </h1>
                 <p className="text-white/75 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">
                   {isOrdersPage
-                    ? 'Review incoming pickup requests, confirm pickup timing, and notify customers before they pay at the counter.'
+                    ? 'Review paid pickup orders, confirm pickup timing, and notify customers when their order is ready.'
                     : 'Manage the public website menu, create new items, update prices, and keep categories organized.'}
                 </p>
               </div>
@@ -667,7 +667,7 @@ export default function AdminDashboard({ section = 'orders' }) {
                                 ? order.payment_status === 'paid'
                                   ? 'Paid Online'
                                   : 'Square Pending'
-                                : 'Pay At Pickup'}
+                                : 'Payment Not Completed'}
                             </span>
                           </div>
                           <p className="text-sm text-on-surface-variant">
@@ -710,7 +710,7 @@ export default function AdminDashboard({ section = 'orders' }) {
                                 ? order.payment_status === 'paid'
                                   ? 'Paid online through Square'
                                   : 'Waiting for Square payment'
-                                : 'Customer pays at pickup'}
+                                : 'Payment not completed online'}
                             </p>
                           </div>
 

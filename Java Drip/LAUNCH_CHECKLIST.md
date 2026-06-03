@@ -3,9 +3,9 @@
 This checklist reflects the app as it exists today:
 
 - website-managed menu
-- in-site pickup request flow
+- in-site pickup order flow
 - staff confirmation through the admin panel
-- pay at pickup, with Square online payment scaffolding ready for credentials
+- Square online payment required for pickup orders
 - DoorDash delivery handoff
 
 ## 1. Production Environment

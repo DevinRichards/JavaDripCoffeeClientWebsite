@@ -10,7 +10,7 @@ import { CLERK_ENABLED } from '../lib/clerkConfig';
 const PERKS = [
   { icon: 'coffee', title: 'Save your favorites', desc: 'Keep your go-to drinks ready for faster repeat pickup orders.' },
   { icon: 'schedule', title: 'Order history', desc: 'Review confirmed pickup requests and reorder from your account.' },
-  { icon: 'verified_user', title: 'Social sign-in', desc: 'Use Google, Facebook, or Apple once they are enabled in Clerk.' },
+  { icon: 'verified_user', title: 'Social sign-in', desc: 'Use Google, Facebook, or Apple to sign in' },
 ];
 
 const CLERK_APPEARANCE = {
@@ -105,9 +105,7 @@ export default function SignIn() {
               <br />
               <span className="text-transparent bg-clip-text kinetic-gradient">THE PULSE</span>
             </h1>
-            <p className="text-lg text-on-surface-variant max-w-xl leading-relaxed mb-10">
-              Choose customer access for pickup history and reorder tools, or staff access for the private menu and pickup order workspace.
-            </p>
+
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {PERKS.map((perk, index) => (

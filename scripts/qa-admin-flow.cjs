@@ -231,6 +231,7 @@ async function main() {
         customer_email: 'qa-guest@javadrip.test',
         customer_phone: '505-555-0100',
         order_type: 'pickup',
+        payment_method: 'online',
         pickup_time: pickupTime,
         location_id: openLocation.id,
         notes: 'Launch QA guest order',
@@ -261,6 +262,17 @@ async function main() {
     assert(adminOrdersResult.response.ok, `Admin orders lookup failed: ${JSON.stringify(adminOrdersResult.body)}`);
     const pendingOrder = adminOrdersResult.body.data.find((entry) => entry.id === created.orderIds[0]);
     assert(pendingOrder, 'Created pickup order did not appear in admin queue.');
+    assert(pendingOrder.status === 'pending_payment', 'Created pickup order should wait for online payment before confirmation.');
+
+    db.prepare(`
+      UPDATE orders
+      SET payment_status = 'paid',
+          payment_method = 'online',
+          payment_provider = 'square',
+          status = 'pending_confirmation',
+          square_payment_id = ?
+      WHERE id = ?
+    `).run(`qa-square-payment-${Date.now()}`, created.orderIds[0]);
 
     const confirmationTime = pickupTime === 'ASAP' ? '15 minutes' : pickupTime;
     const confirmResult = await request(`${API_BASE}/admin/orders/${created.orderIds[0]}/confirm`, {
@@ -289,6 +301,7 @@ async function main() {
         customer_email: 'qa-cancel@javadrip.test',
         customer_phone: '505-555-0103',
         order_type: 'pickup',
+        payment_method: 'online',
         pickup_time: pickupTime,
         location_id: openLocation.id,
         notes: 'Launch QA cancel order',
@@ -334,6 +347,7 @@ async function main() {
           customer_email: 'qa-later@javadrip.test',
           customer_phone: '505-555-0101',
           order_type: 'pickup',
+          payment_method: 'online',
           pickup_time: laterPickupTime,
           location_id: openLocation.id,
           notes: 'Launch QA later-slot order',

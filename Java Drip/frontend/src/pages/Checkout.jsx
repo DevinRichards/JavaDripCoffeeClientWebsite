@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { createSquareCheckout, fetchLocations, fetchPaymentConfig, submitOrder } from '../api';
 import { useCart } from '../context/CartContext';
 import { useUser } from '../context/UserContext';
@@ -87,7 +87,6 @@ function initialFormState(user) {
 }
 
 export default function Checkout() {
-  const navigate = useNavigate();
   const { user } = useUser();
   const { items, subtotal, tax, fees, total, removeItem, updateQty, clearCart, getLinePrice, totalItems } = useCart();
   const [locations, setLocations] = useState([]);
@@ -96,7 +95,6 @@ export default function Checkout() {
   const [error, setError] = useState('');
   const [pickupMode, setPickupMode] = useState('immediate');
   const [pickupSlot, setPickupSlot] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('pay_at_pickup');
   const [paymentConfig, setPaymentConfig] = useState({ squareConfigured: false, squareEnvironment: 'sandbox', loading: true });
 
   useEffect(() => {
@@ -233,6 +231,11 @@ export default function Checkout() {
       return;
     }
 
+    if (!paymentConfig.squareConfigured) {
+      setError('Online payment is required for pickup orders, but Square checkout is not configured yet.');
+      return;
+    }
+
     setSubmitting(true);
     setError('');
 
@@ -240,7 +243,7 @@ export default function Checkout() {
       const response = await submitOrder({
         ...form,
         order_type: 'pickup',
-        payment_method: paymentMethod,
+        payment_method: 'online',
         location_id: Number(form.location_id),
         items: items.map((item) => ({
           id: item.id,
@@ -252,27 +255,17 @@ export default function Checkout() {
         })),
       });
 
-      if (paymentMethod === 'online') {
-        const checkout = await createSquareCheckout({
-          order_id: response.data.id,
-          public_view_token: response.data.public_view_token,
-        });
+      const checkout = await createSquareCheckout({
+        order_id: response.data.id,
+        public_view_token: response.data.public_view_token,
+      });
 
-        if (!checkout.data.checkoutUrl) {
-          throw new Error('Square checkout did not return a payment link.');
-        }
-
-        clearCart();
-        window.location.assign(checkout.data.checkoutUrl);
-        return;
+      if (!checkout.data.checkoutUrl) {
+        throw new Error('Square checkout did not return a payment link.');
       }
 
       clearCart();
-      navigate(`/order/${response.data.id}?token=${encodeURIComponent(response.data.public_view_token)}`, {
-        state: {
-          order: response.data,
-        },
-      });
+      window.location.assign(checkout.data.checkoutUrl);
     } catch (err) {
       setError(err.message || 'Could not place the pickup order right now.');
     } finally {
@@ -292,7 +285,7 @@ export default function Checkout() {
               <span className="inline-block text-primary">PICKUP</span>
             </h1>
             <p className="text-lg text-on-surface-variant max-w-2xl leading-relaxed">
-              Send the order to the store, choose pay-at-pickup or Square online payment when configured, and let the team confirm the pickup time. Delivery still finishes on DoorDash.
+              Send the order to the store, pay securely through Square online checkout, and let the team confirm the pickup time. Delivery still finishes on DoorDash.
             </p>
           </div>
         </Reveal>
@@ -571,39 +564,18 @@ export default function Checkout() {
                 </label>
 
                 <div className="rounded-3xl bg-surface-container-low px-5 py-5">
-                  <p className="font-label uppercase tracking-widest text-[10px] font-bold text-on-surface-variant mb-3">Payment</p>
-                  <div className="grid grid-cols-1 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('pay_at_pickup')}
-                      className={`rounded-2xl border px-4 py-4 text-left transition-all ${
-                        paymentMethod === 'pay_at_pickup'
-                          ? 'border-primary bg-primary/8 shadow-sm'
-                          : 'border-brand-charcoal/10 bg-white'
-                      }`}
-                    >
-                      <span className="block font-headline font-black text-lg">Pay at pickup</span>
-                      <span className="mt-1 block text-sm text-on-surface-variant">
-                        The store confirms your order, then you pay when you arrive.
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => paymentConfig.squareConfigured && setPaymentMethod('online')}
-                      disabled={!paymentConfig.squareConfigured}
-                      className={`rounded-2xl border px-4 py-4 text-left transition-all disabled:cursor-not-allowed disabled:opacity-65 ${
-                        paymentMethod === 'online'
-                          ? 'border-primary bg-primary/8 shadow-sm'
-                          : 'border-brand-charcoal/10 bg-white'
-                      }`}
-                    >
-                      <span className="block font-headline font-black text-lg">Pay online with Square</span>
-                      <span className="mt-1 block text-sm text-on-surface-variant">
-                        {paymentConfig.squareConfigured
-                          ? 'You will be sent to Square secure checkout, then returned to this order.'
-                          : 'Square is not configured yet. This option will unlock when the client provides Square credentials.'}
-                      </span>
-                    </button>
+                  <p className="font-label uppercase tracking-widest text-[10px] font-bold text-on-surface-variant mb-3">Online Payment</p>
+                  <div className={`rounded-2xl border px-4 py-4 text-left transition-all ${
+                    paymentConfig.squareConfigured
+                      ? 'border-primary bg-primary/8 shadow-sm'
+                      : 'border-brand-charcoal/10 bg-white opacity-70'
+                  }`}>
+                    <span className="block font-headline font-black text-lg">Pay online with Square</span>
+                    <span className="mt-1 block text-sm text-on-surface-variant">
+                      {paymentConfig.squareConfigured
+                        ? 'You will be sent to Square secure checkout, then returned to this order.'
+                        : 'Square checkout is not configured yet. Pickup orders require online payment before they can be sent.'}
+                    </span>
                   </div>
                 </div>
 
@@ -625,20 +597,16 @@ export default function Checkout() {
                     <span className="text-primary">{formatMoney(total)}</span>
                   </div>
                   <p className="text-xs text-on-surface-variant leading-relaxed">
-                    {paymentMethod === 'online'
-                      ? 'After payment is complete, the store will review the paid order and confirm pickup timing by email.'
-                      : 'The store will review the order, confirm the pickup timing by email, and collect payment when you arrive.'}
+                    After payment is complete, the store will review the paid order and confirm pickup timing by email.
                   </p>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={submitting || items.length === 0 || !pickupScheduling.acceptsPickupRequests}
+                  disabled={submitting || items.length === 0 || !pickupScheduling.acceptsPickupRequests || paymentConfig.loading || !paymentConfig.squareConfigured}
                   className="w-full kinetic-gradient text-white font-label font-bold py-4 rounded-2xl uppercase tracking-[0.18em] text-sm disabled:opacity-60"
                 >
-                  {submitting
-                    ? paymentMethod === 'online' ? 'Starting Square checkout...' : 'Sending pickup request...'
-                    : paymentMethod === 'online' ? 'Continue To Square Checkout' : 'Send Pickup Request'}
+                  {submitting ? 'Starting Square checkout...' : 'Continue To Square Checkout'}
                 </button>
               </form>
             </Reveal>

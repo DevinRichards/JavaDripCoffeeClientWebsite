@@ -17,7 +17,7 @@ const orderCreationLimiter = createRateLimiter({
 const GRT_RATE = 0.084375;
 const ESTIMATED_FEES = 0;
 const VALID_ORDER_TYPES = new Set(['pickup']);
-const VALID_PAYMENT_METHODS = new Set(['pay_at_pickup', 'online']);
+const VALID_PAYMENT_METHODS = new Set(['online']);
 const ADDON_CATEGORY_NAMES = new Set(['add ons', 'milk options']);
 const PICKUP_SLOT_INTERVAL_MINUTES = 15;
 
@@ -247,7 +247,7 @@ router.post('/', orderCreationLimiter, async (req, res) => {
       location_id,
       items,
       notes,
-      payment_method = 'pay_at_pickup',
+      payment_method = 'online',
     } = req.body;
 
     const normalizedName = cleanText(customer_name);
@@ -293,7 +293,7 @@ router.post('/', orderCreationLimiter, async (req, res) => {
     if (!VALID_PAYMENT_METHODS.has(payment_method)) {
       return res.status(400).json({
         success: false,
-        message: 'Choose a valid pickup payment option.',
+        message: 'Online payment is required for pickup orders.',
       });
     }
 
@@ -358,10 +358,10 @@ router.post('/', orderCreationLimiter, async (req, res) => {
         order_type,
         normalizedPickupTime || null,
         location.id,
-        payment_method === 'online' ? 'pending_payment' : 'pending_confirmation',
-        payment_method === 'online' ? 'pending' : 'unpaid',
+        'pending_payment',
+        'pending',
         payment_method,
-        payment_method === 'online' ? 'square' : null,
+        'square',
         subtotal,
         tax,
         fees,

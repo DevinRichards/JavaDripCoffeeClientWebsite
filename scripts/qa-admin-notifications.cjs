@@ -158,7 +158,7 @@ async function main() {
       order_type: 'pickup',
       pickup_time: getValidPickupTime(openLocation),
       location_id: openLocation.id,
-      payment_method: 'pay_at_pickup',
+      payment_method: 'online',
       items: [{ id: orderableItem.id, quantity: 1, addons: [] }],
       notes: 'Temporary QA order used to validate admin notifications.',
     }),

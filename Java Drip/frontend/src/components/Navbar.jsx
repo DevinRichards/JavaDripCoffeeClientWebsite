@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { useEmployee } from '../context/EmployeeContext';
 import { useCart } from '../context/CartContext';
+import { CLERK_ENABLED } from '../lib/clerkConfig';
 
 const NAV_LINKS = [
   { to: '/menu', label: 'Menu' },
@@ -11,7 +12,6 @@ const NAV_LINKS = [
   { to: '/about', label: 'About' },
   { to: '/contact', label: 'Contact' },
 ];
-const CLERK_ENABLED = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
 function AccountMenu({
   user,

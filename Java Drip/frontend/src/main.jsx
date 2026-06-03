@@ -4,9 +4,8 @@ import { ClerkProvider } from '@clerk/react';
 import App from './App.jsx';
 import { UserProvider } from './context/UserContext.jsx';
 import { EmployeeProvider } from './context/EmployeeContext.jsx';
+import { CLERK_ENABLED, CLERK_PUBLISHABLE_KEY } from './lib/clerkConfig.js';
 import './index.css';
-
-const CLERK_ENABLED = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
 const appContent = (
   <EmployeeProvider>
@@ -19,7 +18,7 @@ const appContent = (
 const appTree = (
   <React.StrictMode>
     {CLERK_ENABLED ? (
-      <ClerkProvider afterSignOutUrl="/">
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} afterSignOutUrl="/">
         {appContent}
       </ClerkProvider>
     ) : (

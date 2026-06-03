@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useAuth, useClerk, useUser as useClerkUser } from '@clerk/react';
 import { fetchCustomerSession } from '../api';
+import { CLERK_ENABLED } from '../lib/clerkConfig';
 
 const UserContext = createContext(null);
-const CLERK_ENABLED = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 const STAFF_SIGNED_IN_EVENT = 'jd:staff-signed-in';
 const CUSTOMER_SIGNED_IN_EVENT = 'jd:customer-signed-in';
 

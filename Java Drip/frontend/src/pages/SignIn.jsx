@@ -5,8 +5,7 @@ import Reveal from '../components/Reveal';
 import { useUser } from '../context/UserContext';
 import { useEmployee } from '../context/EmployeeContext';
 import { fetchAdminAuthStatus } from '../api';
-
-const CLERK_ENABLED = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+import { CLERK_ENABLED } from '../lib/clerkConfig';
 
 const PERKS = [
   { icon: 'coffee', title: 'Save your favorites', desc: 'Keep your go-to drinks ready for faster repeat pickup orders.' },

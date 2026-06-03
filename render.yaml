@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: starter
     region: oregon
-    buildCommand: npm install && npm --prefix "./Java Drip/backend" install && npm --prefix "./Java Drip/frontend" install && npm run build
+    buildCommand: npm --prefix "./Java Drip/backend" ci --omit=dev && npm --prefix "./Java Drip/frontend" ci --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     disk:
@@ -14,6 +14,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: "22.16.0"
       - key: TRUST_PROXY
         value: "true"
       - key: SQLITE_DB_PATH

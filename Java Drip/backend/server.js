@@ -25,16 +25,27 @@ function parseTrustProxySetting(value) {
 // ─── Middleware ───────────────────────────────────────────────────────────────
 
 app.set('trust proxy', parseTrustProxySetting(process.env.TRUST_PROXY));
-app.use(cors({
-  origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+function getRequestOrigin(req) {
+  const protocol = req.protocol || 'https';
+  const host = req.get('host');
+  return host ? `${protocol}://${host}` : '';
+}
 
-    return callback(new Error('Origin is not allowed by CORS.'));
-  },
-  credentials: true
-}));
+function corsMiddleware(req, res, next) {
+  return cors({
+    origin(origin, callback) {
+      const requestOrigin = getRequestOrigin(req);
+      if (!origin || origin === requestOrigin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Origin is not allowed by CORS.'));
+    },
+    credentials: true,
+  })(req, res, next);
+}
+
+app.use('/api', corsMiddleware);
 app.use(securityHeaders);
 app.use(express.json({
   limit: '1mb',

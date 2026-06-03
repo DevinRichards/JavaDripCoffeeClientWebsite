@@ -1,6 +1,9 @@
 {
   "name": "java-drip-workspace",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "node scripts/dev.js",
     "stop-dev": "node scripts/stop-dev.js",

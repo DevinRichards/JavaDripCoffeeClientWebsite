@@ -9,17 +9,7 @@ const DOORDASH_URL = 'https://www.doordash.com/store/java-drip-coffee-1307-e-his
 const ADDON_CATEGORY_IDS = new Set(['add-ons', 'milk-options']);
 const ADDON_CATEGORY_NAMES = new Set(['add ons', 'milk options']);
 
-const FALLBACK_IMAGES = {
-  'Small Refresher': 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=900&q=80&fit=crop',
-  'Small Latte': 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=900&q=80&fit=crop',
-  'Small Roadrunner': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80&fit=crop',
-  'Small Chai': 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=900&q=80&fit=crop',
-  'Small Lemonade': 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=900&q=80&fit=crop',
-  'Small Tea': 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=900&q=80&fit=crop',
-  'Small Matcha': 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=900&q=80&fit=crop',
-  'Small Coffee': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80&fit=crop',
-  'Cake Pop': 'https://images.unsplash.com/photo-1614707267537-b85aaf00c4b7?w=900&q=80&fit=crop',
-};
+const MENU_PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80&fit=crop';
 
 function preloadImages(urls) {
   return Promise.allSettled(
@@ -54,8 +44,7 @@ function Badge({ text }) {
 
 function ItemCard({ item, onPickup, informational = false }) {
   const [imgError, setImgError] = useState(false);
-  const fallbackImage = FALLBACK_IMAGES[item.name] || null;
-  const displayImage = !imgError && item.image_url ? item.image_url : fallbackImage;
+  const displayImage = imgError ? null : MENU_PLACEHOLDER_IMAGE;
 
   return (
     <div className="bg-surface-container-lowest p-6 flex flex-col group relative hover:shadow-editorial transition-all">
@@ -311,10 +300,7 @@ export default function Menu() {
         setMenu(res.data);
         const firstCustomerCategory = res.data.find((category) => !isAddonCategory(category));
         if (firstCustomerCategory) setActiveCategory(firstCustomerCategory.id);
-        const imageUrls = res.data.flatMap((cat) =>
-          cat.items.map((item) => item.image_url || FALLBACK_IMAGES[item.name])
-        );
-        await preloadImages(imageUrls);
+        await preloadImages([MENU_PLACEHOLDER_IMAGE]);
         setImagesReady(true);
       })
       .catch(() => setError(true))

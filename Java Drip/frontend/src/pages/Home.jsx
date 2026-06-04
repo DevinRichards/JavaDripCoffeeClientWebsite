@@ -16,27 +16,6 @@ const SOCIAL_IMAGE_FALLBACKS = {
   TikTok: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=900&q=80&fit=crop',
 };
 
-const GALLERY_PREVIEW_CARDS = [
-  {
-    title: 'Drink Photos',
-    label: 'Photos',
-    icon: 'local_cafe',
-    description: 'A branded placeholder space for drink photography if owned media becomes available later.',
-  },
-  {
-    title: 'Store + Team',
-    label: 'Shop',
-    icon: 'storefront',
-    description: 'A flexible gallery tile for storefront, staff, and community moments when the brand chooses to share them.',
-  },
-  {
-    title: 'Video Moments',
-    label: 'Video',
-    icon: 'play_circle',
-    description: 'Placeholder for approved reels, drink builds, and behind-the-counter clips.',
-  },
-];
-
 function SocialSpotlightImage({ item }) {
   const placeholderSrc = SOCIAL_IMAGE_FALLBACKS[item.platform] || item.image;
   const [activeSrc, setActiveSrc] = useState(placeholderSrc);
@@ -242,62 +221,6 @@ export default function Home() {
         </section>
       </Reveal>
 
-      {/* ── Gallery Preview ── */}
-      <Reveal>
-        <section className="py-24 lg:py-28 px-8 bg-surface">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
-              <div>
-                <p className="font-label uppercase tracking-[0.24em] text-xs font-bold text-primary mb-4">Gallery</p>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9]">
-                  SOCIAL-FIRST
-                  <br />
-                  GALLERY
-                </h2>
-              </div>
-              <p className="text-lg text-on-surface-variant max-w-xl leading-relaxed">
-                Since owned media is not available right now, this area stays polished with branded placeholder cards
-                and directs visitors toward the official social feeds.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {GALLERY_PREVIEW_CARDS.map((card, index) => (
-                <Reveal key={card.title} delay={index * 90}>
-                  <div className="group relative min-h-[340px] overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,_#f6f2ee_0%,_#ece3e7_55%,_#d8dadd_100%)] p-7 shadow-sm transition-all hover:-translate-y-1 hover:shadow-editorial">
-                    <div className="absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.9),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(179,0,101,0.14),transparent_24%),linear-gradient(135deg,transparent_0%,rgba(48,50,52,0.1)_100%)]" />
-                    <div className="relative z-10 flex h-full min-h-[286px] flex-col justify-between">
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="rounded-full bg-white px-4 py-2 font-label text-[10px] font-bold uppercase tracking-widest text-primary">
-                          {card.label}
-                        </span>
-                        <span className="material-symbols-outlined text-4xl text-primary/80">{card.icon}</span>
-                      </div>
-                      <div>
-                        <p className="mb-3 font-label text-[10px] font-bold uppercase tracking-[0.24em] text-primary">
-                          Java Drip Coffee
-                        </p>
-                        <h3 className="font-headline text-3xl font-black tracking-tight text-on-surface">{card.title}</h3>
-                        <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{card.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-
-            <div className="mt-10">
-              <Link
-                to="/gallery"
-                className="inline-flex items-center gap-3 rounded-full kinetic-gradient px-6 py-4 font-label text-xs font-bold uppercase tracking-widest text-white shadow-editorial transition-all hover:scale-[1.02] active:scale-95"
-              >
-                View Full Gallery
-                <span aria-hidden="true">→</span>
-              </Link>
-            </div>
-          </div>
-        </section>
-      </Reveal>
     </>
   );
 }

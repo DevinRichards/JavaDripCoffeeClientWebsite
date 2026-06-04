@@ -6,10 +6,6 @@ export const FACEBOOK_EMBED_URL = `https://www.facebook.com/plugins/page.php?hre
 export const INSTAGRAM_EMBED_URL = 'https://www.instagram.com/java_drip_coffee/embed';
 export const TIKTOK_EMBED_URL = 'https://www.tiktok.com/embed/@javadripcoffee';
 
-const LATTE_BAR_IMAGE = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1000&q=85&fit=crop';
-const STOREFRONT_IMAGE = 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1000&q=85&fit=crop';
-const TEAM_IMAGE = 'https://images.unsplash.com/photo-1513267048331-5611cad62e41?w=1000&q=85&fit=crop';
-
 export const SOCIAL_SPOTLIGHTS = [
   {
     id: 'instagram-scenes',
@@ -18,7 +14,7 @@ export const SOCIAL_SPOTLIGHTS = [
     title: 'Daily drink moments and behind-the-bar shots',
     description: 'A fast visual feed for seasonal pours, latte art, and the Gallup coffee mood.',
     href: INSTAGRAM_URL,
-    image: LATTE_BAR_IMAGE,
+    image: null,
   },
   {
     id: 'facebook-community',
@@ -27,7 +23,7 @@ export const SOCIAL_SPOTLIGHTS = [
     title: 'Community updates, announcements, and event posts',
     description: 'Stay close to store updates, hours notes, and local happenings around Java Drip Coffee.',
     href: FACEBOOK_URL,
-    image: STOREFRONT_IMAGE,
+    image: null,
   },
   {
     id: 'tiktok-reels',
@@ -36,7 +32,7 @@ export const SOCIAL_SPOTLIGHTS = [
     title: 'Short-form cafe clips with energy and personality',
     description: 'Quick edits from the counter, drink builds, and the personality behind the brand.',
     href: TIKTOK_URL,
-    image: TEAM_IMAGE,
+    image: null,
   },
 ];
 
@@ -47,7 +43,7 @@ export const SOCIAL_PROFILES = [
     handle: '@java_drip_coffee',
     bio: 'Java Drip Coffee',
     href: INSTAGRAM_URL,
-    image: LATTE_BAR_IMAGE,
+    image: null,
     accent: 'Daily photos, reels, drinks, and behind-the-counter moments.',
     embedUrl: INSTAGRAM_EMBED_URL,
   },
@@ -57,7 +53,7 @@ export const SOCIAL_PROFILES = [
     handle: '/javadripcoffee',
     bio: 'Java Drip Coffee',
     href: FACEBOOK_URL,
-    image: STOREFRONT_IMAGE,
+    image: null,
     accent: 'Community updates, announcements, hours, and local customer touchpoints.',
     embedUrl: FACEBOOK_EMBED_URL,
   },
@@ -67,7 +63,7 @@ export const SOCIAL_PROFILES = [
     handle: '@javadripcoffee',
     bio: 'Java Drip Coffee',
     href: TIKTOK_URL,
-    image: TEAM_IMAGE,
+    image: null,
     accent: 'Short-form drink builds, shop personality, and quick cafe clips.',
     embedUrl: TIKTOK_EMBED_URL,
   },

@@ -9,10 +9,8 @@ function SafeImage({ src, alt, className }) {
 
   if (failed || !src) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,_rgba(179,0,101,0.12),_rgba(255,110,169,0.24))]">
-        <span className="px-4 text-center font-label text-xs font-bold uppercase tracking-widest text-primary/80">
-          Java Drip Coffee
-        </span>
+      <div className="flex h-full w-full items-center justify-center bg-surface-container">
+        <span className="material-symbols-outlined text-5xl text-outline-variant">coffee</span>
       </div>
     );
   }
@@ -78,10 +76,10 @@ export default function Gallery() {
 
         <Reveal from="right" delay={120} className="lg:col-span-5">
           <div className="rounded-[32px] bg-surface-container-low p-6 shadow-sm">
-            <p className="font-label text-[10px] uppercase tracking-widest font-bold text-primary mb-3">Live Website</p>
+            <p className="font-label text-[10px] uppercase tracking-widest font-bold text-primary mb-3">Java Drip Coffee Online</p>
             <p className="text-on-surface-variant leading-relaxed">
-              Choose a channel below to spotlight the active Java Drip Coffee profile, then use the
-              gallery categories to browse the visual experience by format.
+              Catch the latest from Java Drip Coffee across social media, from shop updates to everyday
+              moments around the counter.
             </p>
           </div>
         </Reveal>
@@ -97,8 +95,7 @@ export default function Gallery() {
               PULSE
             </h2>
             <p className="text-zinc-300 leading-relaxed max-w-lg mb-8">
-              Select the social channel to highlight. The profile bio is shown as the primary copy, with the full handle
-              visible and linked out to the official Java Drip Coffee page.
+              Follow the official Java Drip Coffee profiles for current posts, shop news, and behind-the-counter moments.
             </p>
             <div className="space-y-3" role="tablist" aria-label="Social media profiles">
               {SOCIAL_PROFILES.map((profile) => (
@@ -207,7 +204,7 @@ export default function Gallery() {
               </h2>
             </div>
             <p className="text-on-surface-variant max-w-xl leading-relaxed">
-              Jump between photos, videos, and store moments connected to the live Java Drip Coffee web presence.
+              No images at this time, come back soon.
             </p>
           </div>
         </Reveal>

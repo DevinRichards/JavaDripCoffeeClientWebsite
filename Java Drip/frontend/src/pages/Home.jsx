@@ -10,35 +10,14 @@ import {
   TIKTOK_URL,
 } from '../content/socialMedia';
 const HERO_IMG = 'https://lh3.googleusercontent.com/aida-public/AB6AXuACCR2S0ytvA0ydCCp5I5AljtGulZcL8-PHvsd9bzgaMsR0EcILoh_bWka2UpgRACkxdXPaQ6fdVeecsEh51LzylFLoE4Jyeqy4YCil-F-wUX0BRcqRuAnJdfls4Y4QcD428xN6eCouMpX-7U9Y9xzx5Kuoj-wKfsx1rc6w8hdykdi7ctZ0vWNUw4-3uHbzDxyM7TzCoNj_Q2Kn7J5Kfp3Lwf6VQFJsh17vJG4pXzbwRtrtaB_jFf-9EcQnvYEbazQbpaNtu4uhCfU';
-const SOCIAL_IMAGE_FALLBACKS = {
-  Instagram: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&q=80&fit=crop',
-  Facebook: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80&fit=crop',
-  TikTok: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=900&q=80&fit=crop',
-};
 
 function SocialSpotlightImage({ item }) {
-  const placeholderSrc = SOCIAL_IMAGE_FALLBACKS[item.platform] || item.image;
-  const [activeSrc, setActiveSrc] = useState(placeholderSrc);
-  const [fallbackTried, setFallbackTried] = useState(false);
-
-  const handleError = () => {
-    const fallbackSrc = SOCIAL_IMAGE_FALLBACKS[item.platform];
-
-    if (!fallbackTried && fallbackSrc && fallbackSrc !== activeSrc) {
-      setFallbackTried(true);
-      setActiveSrc(fallbackSrc);
-      return;
-    }
-
-    setActiveSrc(null);
-  };
+  const [activeSrc, setActiveSrc] = useState(item.image);
 
   if (!activeSrc) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,_rgba(179,0,101,0.12),_rgba(255,110,169,0.28))]">
-        <span className="px-2 text-center font-label text-[9px] font-bold uppercase tracking-widest text-primary">
-          Java Drip
-        </span>
+      <div className="flex h-full w-full items-center justify-center bg-surface-container">
+        <span className="material-symbols-outlined text-5xl text-outline-variant">coffee</span>
       </div>
     );
   }
@@ -50,7 +29,7 @@ function SocialSpotlightImage({ item }) {
       aria-hidden="true"
       className="h-full w-full object-cover"
       loading="lazy"
-      onError={handleError}
+      onError={() => setActiveSrc(null)}
     />
   );
 }
@@ -151,8 +130,8 @@ export default function Home() {
               <p className="font-label uppercase tracking-[0.24em] text-xs font-bold text-primary mb-4">Social Media</p>
               <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-5 leading-[0.9]">FOLLOW THE PULSE</h2>
               <p className="text-lg text-on-surface-variant mb-10 max-w-2xl leading-relaxed">
-                Follow Java Drip Coffee across Facebook, Instagram, and TikTok for shop updates, daily moments,
-                and community energy from Gallup.
+                Keep up with Java Drip Coffee across Facebook, Instagram, and TikTok for shop updates,
+                daily drink moments, and community energy from Gallup.
               </p>
               <div className="space-y-4">
                 {SOCIAL_SPOTLIGHTS.map((item) => (

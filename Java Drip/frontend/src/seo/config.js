@@ -1,5 +1,5 @@
 export const SITE_ORIGIN = 'https://javadrip.coffee';
-export const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=80&fit=crop';
+export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/favicon.svg`;
 
 export function getSeoConfig(pathname) {
   switch (pathname) {
@@ -60,7 +60,7 @@ export function getSeoConfig(pathname) {
     case '/gallery':
       return {
         title: 'Gallery | Java Drip Coffee Photos, Video & Social Feed',
-        description: 'Explore Java Drip Coffee photos, video moments, and embedded social updates from Gallup, New Mexico.',
+        description: 'Explore Java Drip Coffee photos, video moments, and social updates from Gallup, New Mexico.',
         path: '/gallery',
       };
     case '/about':

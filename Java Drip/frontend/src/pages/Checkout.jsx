@@ -285,7 +285,7 @@ export default function Checkout() {
               <span className="inline-block text-primary">PICKUP</span>
             </h1>
             <p className="text-lg text-on-surface-variant max-w-2xl leading-relaxed">
-              Review your pickup order, complete secure online payment, and watch for the store's pickup confirmation.
+              Take one last look at your pickup order, then check out when everything looks just right.
             </p>
           </div>
         </Reveal>
@@ -389,9 +389,9 @@ export default function Checkout() {
               <div className="bg-brand-charcoal text-white rounded-[32px] px-8 py-8 md:px-10 md:py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                 <div>
                   <p className="font-label uppercase tracking-widest text-[10px] font-bold text-white/60 mb-2">Delivery</p>
-                  <h2 className="font-headline font-black text-3xl tracking-tighter mb-2">Order delivery on DoorDash.</h2>
+                  <h2 className="font-headline font-black text-3xl tracking-tighter mb-2">Want it brought to you?</h2>
                   <p className="text-white/70 max-w-2xl">
-                    For delivery orders, continue to DoorDash and complete checkout there.
+                    Order Java Drip Coffee delivery through DoorDash.
                   </p>
                 </div>
                 <a

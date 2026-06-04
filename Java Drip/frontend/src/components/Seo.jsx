@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 const SITE_ORIGIN = 'https://javadrip.coffee';
-const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=80&fit=crop';
+const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/favicon.svg`;
 
 function upsertMeta(attr, key, content) {
   if (!content) return;

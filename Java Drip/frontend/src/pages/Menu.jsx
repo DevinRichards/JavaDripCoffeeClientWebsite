@@ -309,7 +309,7 @@ export default function Menu() {
           The<br />Pulse<br /><span className="text-primary italic">Menu</span>
         </h1>
         <p className="hero-anim hero-anim-2 w-full max-w-[19rem] sm:max-w-2xl text-lg text-on-surface-variant font-medium leading-relaxed">
-          Explore the Java Drip Coffee menu, build a pickup order, and check out securely online. Delivery orders continue through DoorDash.
+          Browse your favorites, add the extras you love, and place a pickup order when you're ready.
         </p>
       </div>
 

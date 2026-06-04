@@ -5,7 +5,7 @@ import Reveal from '../components/Reveal';
 import { useUser } from '../context/UserContext';
 import { useEmployee } from '../context/EmployeeContext';
 import { fetchAdminAuthStatus } from '../api';
-import { CLERK_ENABLED } from '../lib/clerkConfig';
+import { CLERK_ENABLED, CLERK_KEY_STATUS } from '../lib/clerkConfig';
 
 const PERKS = [
   { icon: 'coffee', title: 'Save your favorites', desc: 'Keep your go-to drinks ready for faster repeat pickup orders.' },
@@ -239,7 +239,10 @@ export default function SignIn() {
                   <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-5 text-amber-900">
                     <p className="font-bold mb-2">Customer sign-in is temporarily unavailable.</p>
                     <p className="text-sm leading-relaxed">
-                      Please check back shortly or continue browsing the menu and pickup experience as a guest in the meantime.
+                      The website is not receiving the Clerk browser key yet. Please continue browsing the menu while we finish the login setup.
+                    </p>
+                    <p className="mt-3 font-label text-[10px] font-bold uppercase tracking-widest text-amber-800">
+                      Clerk status: {CLERK_KEY_STATUS.hasKey ? CLERK_KEY_STATUS.mode : 'missing VITE key'}
                     </p>
                   </div>
                 )}

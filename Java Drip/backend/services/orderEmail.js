@@ -4,13 +4,19 @@ const DEFAULT_BUSINESS_EMAIL = 'javadripcoffee@gmail.com';
 
 let transporter;
 
+function isEmailConfigured() {
+  const { EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS } = process.env;
+  return Boolean(EMAIL_HOST && EMAIL_PORT && EMAIL_USER && EMAIL_PASS);
+}
+
 function getTransporter() {
   if (transporter) return transporter;
 
-  const { EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS } = process.env;
-  if (!EMAIL_HOST || !EMAIL_PORT || !EMAIL_USER || !EMAIL_PASS) {
+  if (!isEmailConfigured()) {
     return null;
   }
+
+  const { EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS } = process.env;
 
   transporter = nodemailer.createTransport({
     host: EMAIL_HOST,
@@ -136,6 +142,7 @@ async function sendPickupOrderCanceledEmail(order) {
 
 module.exports = {
   getTransporter,
+  isEmailConfigured,
   sendPickupOrderReceivedEmail,
   sendPickupOrderConfirmedEmail,
   sendPickupOrderCanceledEmail,

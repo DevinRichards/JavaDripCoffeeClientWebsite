@@ -576,22 +576,33 @@ router.post('/orders/:id/confirm', requireAdmin, async (req, res) => {
       SET status = 'confirmed',
           confirmation_pickup_time = ?,
           admin_notes = ?,
-          confirmed_at = datetime('now'),
-          customer_notified_at = datetime('now')
+          confirmed_at = datetime('now')
       WHERE id = ?
     `).run(pickupTime, adminNotes, req.params.id);
 
-    const refreshedOrders = getAdminOrdersPayload(db);
+    let refreshedOrders = getAdminOrdersPayload(db);
     const refreshedOrder = refreshedOrders.find((entry) => entry.id === req.params.id);
+    let emailSent = false;
+    let emailWarning = '';
 
-    sendPickupOrderConfirmedEmail(refreshedOrder).catch((mailErr) => {
+    try {
+      emailSent = await sendPickupOrderConfirmedEmail(refreshedOrder);
+      if (emailSent) {
+        db.prepare('UPDATE orders SET customer_notified_at = datetime(\'now\') WHERE id = ?').run(req.params.id);
+        refreshedOrders = getAdminOrdersPayload(db);
+      } else {
+        emailWarning = ' Customer email was not sent because email delivery is not configured.';
+      }
+    } catch (mailErr) {
+      emailWarning = ' Customer email failed to send. Check the email provider settings and server logs.';
       console.error(`Pickup confirmation email failed for ${req.params.id}:`, mailErr.message);
-    });
+    }
 
     res.json({
       success: true,
       data: refreshedOrders,
-      message: `Order ${req.params.id} confirmed for ${pickupTime}.`,
+      emailSent,
+      message: `Order ${req.params.id} confirmed for ${pickupTime}.${emailWarning}`,
     });
   } catch (err) {
     console.error('Admin order confirmation failed:', err.message);
@@ -622,17 +633,29 @@ router.post('/orders/:id/cancel', requireAdmin, async (req, res) => {
       WHERE id = ?
     `).run(adminNotes, req.params.id);
 
-    const refreshedOrders = getAdminOrdersPayload(db);
+    let refreshedOrders = getAdminOrdersPayload(db);
     const refreshedOrder = refreshedOrders.find((entry) => entry.id === req.params.id);
+    let emailSent = false;
+    let emailWarning = '';
 
-    sendPickupOrderCanceledEmail(refreshedOrder).catch((mailErr) => {
+    try {
+      emailSent = await sendPickupOrderCanceledEmail(refreshedOrder);
+      if (emailSent) {
+        db.prepare('UPDATE orders SET customer_notified_at = datetime(\'now\') WHERE id = ?').run(req.params.id);
+        refreshedOrders = getAdminOrdersPayload(db);
+      } else {
+        emailWarning = ' Customer email was not sent because email delivery is not configured.';
+      }
+    } catch (mailErr) {
+      emailWarning = ' Customer email failed to send. Check the email provider settings and server logs.';
       console.error(`Pickup cancellation email failed for ${req.params.id}:`, mailErr.message);
-    });
+    }
 
     res.json({
       success: true,
       data: refreshedOrders,
-      message: `Order ${req.params.id} canceled.`,
+      emailSent,
+      message: `Order ${req.params.id} canceled.${emailWarning}`,
     });
   } catch (err) {
     console.error('Admin order cancellation failed:', err.message);

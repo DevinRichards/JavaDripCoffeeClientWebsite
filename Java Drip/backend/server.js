@@ -7,6 +7,7 @@ const { clerkMiddleware } = require('@clerk/express');
 
 const { initializeDatabase } = require('./db/database');
 const { getAdminAuthStatus, isAdminSessionConfigured } = require('./services/adminAuth');
+const { isEmailConfigured } = require('./services/orderEmail');
 const { createRateLimiter, parseAllowedOrigins, securityHeaders } = require('./middleware/security');
 
 const app  = express();
@@ -102,7 +103,11 @@ app.get('/api/health', (req, res) => {
     payments: {
       squareConfigured: Boolean(process.env.SQUARE_ACCESS_TOKEN && process.env.SQUARE_LOCATION_ID),
       squareEnvironment: process.env.SQUARE_ENVIRONMENT || 'sandbox',
-    }
+    },
+    email: {
+      configured: isEmailConfigured(),
+      toConfigured: Boolean(process.env.ORDER_NOTIFICATION_EMAIL || process.env.EMAIL_TO),
+    },
   });
 });
 

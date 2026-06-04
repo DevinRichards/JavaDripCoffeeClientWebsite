@@ -63,7 +63,7 @@ npm run build
 
 ## 4. Email Delivery
 
-- [ ] Configure SMTP in `backend/.env`:
+- [ ] Configure SMTP/transactional email in Render:
 
 ```bash
 EMAIL_HOST=
@@ -76,6 +76,7 @@ ORDER_NOTIFICATION_EMAIL=javadripcoffee@gmail.com
 
 - [ ] Submit a pickup request and confirm the store notification email arrives
 - [ ] Confirm a pickup order from the admin panel and verify the customer confirmation email arrives
+- [x] Admin confirmation now reports if the customer email was skipped or failed
 
 ## 5. Square Online Pickup Payments
 
@@ -91,9 +92,11 @@ SQUARE_WEBHOOK_NOTIFICATION_URL=https://your-domain.com/api/payments/square/webh
 SQUARE_API_VERSION=2025-09-24
 ```
 
-- [ ] Register the Square webhook URL in the Square Developer Dashboard
-- [ ] Test creating a Square-hosted checkout link from a pickup order
+- [x] Register the Square webhook URL in the Square Developer Dashboard
+- [x] Test creating a Square-hosted checkout link from a pickup order
+- [x] Confirm Square webhook reaches the app with `200` responses
 - [ ] Confirm Square webhook changes the order from `pending_payment` to `pending_confirmation` with `payment_status=paid`
+- [ ] Confirm Square redirects customers back to the website order page after payment
 - [ ] Verify admin panel blocks confirming unpaid online orders
 - [ ] Switch `SQUARE_ENVIRONMENT=production` only after sandbox testing passes
 

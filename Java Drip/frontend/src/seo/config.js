@@ -150,6 +150,14 @@ export function getSeoConfig(pathname) {
         path: '/terms',
       };
     default:
+      if (pathname.startsWith('/payment-return/')) {
+        return {
+          title: 'Confirming Payment | Java Drip Coffee',
+          description: 'Confirming your Java Drip Coffee payment status.',
+          path: pathname,
+          noindex: true,
+        };
+      }
       if (pathname.startsWith('/order/')) {
         return {
           title: 'Order Confirmation | Java Drip Coffee',

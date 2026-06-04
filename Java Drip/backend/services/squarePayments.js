@@ -24,7 +24,7 @@ function dollarsToCents(value) {
 
 function buildRedirectUrl(order) {
   const frontendUrl = String(process.env.FRONTEND_URL || 'http://localhost:5181').replace(/\/$/, '');
-  return `${frontendUrl}/order/${encodeURIComponent(order.id)}?token=${encodeURIComponent(order.public_view_token || '')}`;
+  return `${frontendUrl}/payment-return/${encodeURIComponent(order.id)}?token=${encodeURIComponent(order.public_view_token || '')}`;
 }
 
 function buildLineItems(order) {

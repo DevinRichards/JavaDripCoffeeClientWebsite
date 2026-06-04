@@ -14,6 +14,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Gallery from './pages/Gallery';
 import Checkout from './pages/Checkout';
+import PaymentReturn from './pages/PaymentReturn';
 import OrderConfirmation from './pages/OrderConfirmation';
 import Privacy from './pages/Privacy';
 import Profile from './pages/Profile';
@@ -88,6 +89,7 @@ function AnimatedRoutes() {
           }
         />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/payment-return/:id" element={<PaymentReturn />} />
         <Route path="/order/:id" element={<OrderConfirmation />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />

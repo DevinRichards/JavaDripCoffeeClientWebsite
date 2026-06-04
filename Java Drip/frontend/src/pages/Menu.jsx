@@ -9,19 +9,6 @@ const DOORDASH_URL = 'https://www.doordash.com/store/java-drip-coffee-1307-e-his
 const ADDON_CATEGORY_IDS = new Set(['add-ons', 'milk-options']);
 const ADDON_CATEGORY_NAMES = new Set(['add ons', 'milk options']);
 
-const MENU_PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80&fit=crop';
-
-function preloadImages(urls) {
-  return Promise.allSettled(
-    [...new Set(urls.filter(Boolean))].map((url) => new Promise((resolve) => {
-      const img = new Image();
-      img.onload = resolve;
-      img.onerror = resolve;
-      img.src = url;
-    }))
-  );
-}
-
 function isAddonCategory(category) {
   return ADDON_CATEGORY_IDS.has(category.id) || ADDON_CATEGORY_NAMES.has(String(category.name || '').toLowerCase());
 }
@@ -43,25 +30,12 @@ function Badge({ text }) {
 }
 
 function ItemCard({ item, onPickup, informational = false }) {
-  const [imgError, setImgError] = useState(false);
-  const displayImage = imgError ? null : MENU_PLACEHOLDER_IMAGE;
-
   return (
     <div className="bg-surface-container-lowest p-6 flex flex-col group relative hover:shadow-editorial transition-all">
       <div className="mb-6 overflow-hidden bg-surface-container aspect-square rounded">
-        {displayImage ? (
-          <img
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            src={displayImage}
-            alt={item.name}
-            onError={() => setImgError(true)}
-            loading="eager"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="material-symbols-outlined text-5xl text-outline-variant">coffee</span>
-          </div>
-        )}
+        <div className="w-full h-full flex items-center justify-center">
+          <span className="material-symbols-outlined text-5xl text-outline-variant">coffee</span>
+        </div>
         {item.badge && (
           <div className="absolute top-4 left-4">
             <Badge text={item.badge} />
@@ -291,17 +265,14 @@ export default function Menu() {
   const [activeCategory, setActiveCategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [imagesReady, setImagesReady] = useState(false);
   const [configuringItem, setConfiguringItem] = useState(null);
 
   useEffect(() => {
     fetchMenu()
-      .then(async (res) => {
+      .then((res) => {
         setMenu(res.data);
         const firstCustomerCategory = res.data.find((category) => !isAddonCategory(category));
         if (firstCustomerCategory) setActiveCategory(firstCustomerCategory.id);
-        await preloadImages([MENU_PLACEHOLDER_IMAGE]);
-        setImagesReady(true);
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -338,7 +309,7 @@ export default function Menu() {
           The<br />Pulse<br /><span className="text-primary italic">Menu</span>
         </h1>
         <p className="hero-anim hero-anim-2 w-full max-w-[19rem] sm:max-w-2xl text-lg text-on-surface-variant font-medium leading-relaxed">
-          Build pickup orders directly on the site, customize drinks with add-ons, pay online through Square, and let the store confirm pickup timing. Delivery still finishes through DoorDash.
+          Explore the Java Drip Coffee menu, build a pickup order, and check out securely online. Delivery orders continue through DoorDash.
         </p>
       </div>
 
@@ -379,13 +350,7 @@ export default function Menu() {
           </div>
         )}
 
-        {!loading && !error && !imagesReady && (
-          <div className="flex justify-center py-20">
-            <span className="material-symbols-outlined text-4xl text-primary animate-spin">imagesmode</span>
-          </div>
-        )}
-
-        {imagesReady && customerCategories.map((cat, index) => (
+        {!loading && !error && customerCategories.map((cat, index) => (
           <section
             id={`cat-${cat.id}`}
             key={cat.id}
@@ -419,9 +384,9 @@ export default function Menu() {
         <div className="bg-brand-charcoal py-16 px-8">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
             <div>
-              <p className="font-label uppercase tracking-widest text-xs text-primary mb-2">Delivery Stays On DoorDash</p>
+              <p className="font-label uppercase tracking-widest text-xs text-primary mb-2">Delivery</p>
               <h2 className="font-headline font-black text-3xl text-white tracking-tighter">Need it delivered instead?</h2>
-              <p className="text-white/70 mt-2">Pickup orders now live on the Java Drip Coffee website. Delivery continues through DoorDash so routing and dispatch stay familiar for the team.</p>
+              <p className="text-white/70 mt-2">Head to DoorDash to place a delivery order for Java Drip Coffee.</p>
             </div>
             <a
               href={DOORDASH_URL}

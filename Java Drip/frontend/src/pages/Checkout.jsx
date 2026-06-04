@@ -285,7 +285,7 @@ export default function Checkout() {
               <span className="inline-block text-primary">PICKUP</span>
             </h1>
             <p className="text-lg text-on-surface-variant max-w-2xl leading-relaxed">
-              Send the order to the store, pay securely through Square online checkout, and let the team confirm the pickup time. Delivery still finishes on DoorDash.
+              Review your pickup order, complete secure online payment, and watch for the store's pickup confirmation.
             </p>
           </div>
         </Reveal>
@@ -388,10 +388,10 @@ export default function Checkout() {
             <Reveal delay={90}>
               <div className="bg-brand-charcoal text-white rounded-[32px] px-8 py-8 md:px-10 md:py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                 <div>
-                  <p className="font-label uppercase tracking-widest text-[10px] font-bold text-white/60 mb-2">Need delivery?</p>
-                  <h2 className="font-headline font-black text-3xl tracking-tighter mb-2">DoorDash still handles delivery checkout.</h2>
+                  <p className="font-label uppercase tracking-widest text-[10px] font-bold text-white/60 mb-2">Delivery</p>
+                  <h2 className="font-headline font-black text-3xl tracking-tighter mb-2">Order delivery on DoorDash.</h2>
                   <p className="text-white/70 max-w-2xl">
-                    Pickup now runs through the Java Drip Coffee website. Delivery remains a DoorDash handoff so dispatch and driver logistics stay streamlined.
+                    For delivery orders, continue to DoorDash and complete checkout there.
                   </p>
                 </div>
                 <a

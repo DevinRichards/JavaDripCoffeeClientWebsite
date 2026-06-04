@@ -151,8 +151,8 @@ export default function Home() {
               <p className="font-label uppercase tracking-[0.24em] text-xs font-bold text-primary mb-4">Social Media</p>
               <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-5 leading-[0.9]">FOLLOW THE PULSE</h2>
               <p className="text-lg text-on-surface-variant mb-10 max-w-2xl leading-relaxed">
-                Stay dialed in with the Java Drip Coffee feed. The Facebook timeline is embedded directly on the site,
-                while Instagram and TikTok keep the faster visual energy moving.
+                Follow Java Drip Coffee across Facebook, Instagram, and TikTok for shop updates, daily moments,
+                and community energy from Gallup.
               </p>
               <div className="space-y-4">
                 {SOCIAL_SPOTLIGHTS.map((item) => (

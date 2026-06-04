@@ -223,6 +223,13 @@ export default function Gallery() {
             </a>
           ))}
         </div>
+
+        <div className="mt-8 rounded-[28px] border border-brand-charcoal/10 bg-surface-container-low px-6 py-8 text-center">
+          <span className="material-symbols-outlined text-4xl text-outline-variant">coffee</span>
+          <p className="mt-3 font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+            No images at this time, come back soon.
+          </p>
+        </div>
       </section>
 
       <section className="max-w-7xl mx-auto px-6 sm:px-8 py-16 lg:py-20">

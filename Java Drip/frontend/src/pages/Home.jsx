@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import Reveal from '../components/Reveal';
+import SocialLogo from '../components/SocialLogo';
 import {
   FACEBOOK_EMBED_URL,
   FACEBOOK_URL,
@@ -10,29 +11,6 @@ import {
   TIKTOK_URL,
 } from '../content/socialMedia';
 const HERO_IMG = 'https://lh3.googleusercontent.com/aida-public/AB6AXuACCR2S0ytvA0ydCCp5I5AljtGulZcL8-PHvsd9bzgaMsR0EcILoh_bWka2UpgRACkxdXPaQ6fdVeecsEh51LzylFLoE4Jyeqy4YCil-F-wUX0BRcqRuAnJdfls4Y4QcD428xN6eCouMpX-7U9Y9xzx5Kuoj-wKfsx1rc6w8hdykdi7ctZ0vWNUw4-3uHbzDxyM7TzCoNj_Q2Kn7J5Kfp3Lwf6VQFJsh17vJG4pXzbwRtrtaB_jFf-9EcQnvYEbazQbpaNtu4uhCfU';
-
-function SocialSpotlightImage({ item }) {
-  const [activeSrc, setActiveSrc] = useState(item.image);
-
-  if (!activeSrc) {
-    return (
-      <div className="flex h-full w-full items-center justify-center bg-surface-container">
-        <span className="material-symbols-outlined text-5xl text-outline-variant">coffee</span>
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={activeSrc}
-      alt=""
-      aria-hidden="true"
-      className="h-full w-full object-cover"
-      loading="lazy"
-      onError={() => setActiveSrc(null)}
-    />
-  );
-}
 
 export default function Home() {
   const [showLoginToast, setShowLoginToast] = useState(false);
@@ -142,8 +120,8 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="group flex items-center gap-5 rounded-[32px] bg-white p-5 shadow-editorial transition-all hover:-translate-y-1"
                   >
-                    <div className="h-24 w-24 shrink-0 overflow-hidden rounded-[24px] md:h-28 md:w-28">
-                      <SocialSpotlightImage item={item} />
+                    <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[24px] bg-surface-container text-primary transition-all group-hover:bg-primary group-hover:text-white md:h-28 md:w-28">
+                      <SocialLogo id={item.socialId} className="h-10 w-10 md:h-12 md:w-12" />
                     </div>
                     <div className="min-w-0">
                       <p className="font-label text-[10px] uppercase tracking-widest font-bold text-primary mb-1">

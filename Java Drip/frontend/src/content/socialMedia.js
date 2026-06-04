@@ -6,9 +6,14 @@ export const FACEBOOK_EMBED_URL = `https://www.facebook.com/plugins/page.php?hre
 export const INSTAGRAM_EMBED_URL = 'https://www.instagram.com/java_drip_coffee/embed';
 export const TIKTOK_EMBED_URL = 'https://www.tiktok.com/embed/@javadripcoffee';
 
+const LATTE_BAR_IMAGE = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1000&q=85&fit=crop';
+const STOREFRONT_IMAGE = 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1000&q=85&fit=crop';
+const TEAM_IMAGE = 'https://images.unsplash.com/photo-1513267048331-5611cad62e41?w=1000&q=85&fit=crop';
+
 export const SOCIAL_SPOTLIGHTS = [
   {
     id: 'instagram-scenes',
+    socialId: 'instagram',
     platform: 'Instagram',
     icon: 'photo_camera',
     title: 'Daily drink moments and behind-the-bar shots',
@@ -18,6 +23,7 @@ export const SOCIAL_SPOTLIGHTS = [
   },
   {
     id: 'facebook-community',
+    socialId: 'facebook',
     platform: 'Facebook',
     icon: 'thumb_up',
     title: 'Community updates, announcements, and event posts',
@@ -27,6 +33,7 @@ export const SOCIAL_SPOTLIGHTS = [
   },
   {
     id: 'tiktok-reels',
+    socialId: 'tiktok',
     platform: 'TikTok',
     icon: 'music_note',
     title: 'Short-form cafe clips with energy and personality',
@@ -43,7 +50,7 @@ export const SOCIAL_PROFILES = [
     handle: '@java_drip_coffee',
     bio: 'Java Drip Coffee',
     href: INSTAGRAM_URL,
-    image: null,
+    image: LATTE_BAR_IMAGE,
     accent: 'Daily photos, reels, drinks, and behind-the-counter moments.',
     embedUrl: INSTAGRAM_EMBED_URL,
   },
@@ -53,7 +60,7 @@ export const SOCIAL_PROFILES = [
     handle: '/javadripcoffee',
     bio: 'Java Drip Coffee',
     href: FACEBOOK_URL,
-    image: null,
+    image: STOREFRONT_IMAGE,
     accent: 'Community updates, announcements, hours, and local customer touchpoints.',
     embedUrl: FACEBOOK_EMBED_URL,
   },
@@ -63,7 +70,7 @@ export const SOCIAL_PROFILES = [
     handle: '@javadripcoffee',
     bio: 'Java Drip Coffee',
     href: TIKTOK_URL,
-    image: null,
+    image: TEAM_IMAGE,
     accent: 'Short-form drink builds, shop personality, and quick cafe clips.',
     embedUrl: TIKTOK_EMBED_URL,
   },

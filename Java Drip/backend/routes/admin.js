@@ -64,6 +64,72 @@ function normalizePrice(value) {
   return Number(price.toFixed(2));
 }
 
+function validateGalleryDataUrl(value, mediaType) {
+  const mediaUrl = String(value || '').trim();
+  if (!mediaUrl) {
+    throw new Error(mediaType === 'video' ? 'Gallery video is required.' : 'Gallery image is required.');
+  }
+
+  const isValidPhoto = /^data:image\/(png|jpe?g|webp|gif);base64,/i.test(mediaUrl);
+  const isValidVideo = /^data:video\/(mp4|webm|ogg|quicktime);base64,/i.test(mediaUrl);
+
+  if (mediaType === 'video') {
+    if (!isValidVideo) {
+      throw new Error('Upload an MP4, WEBM, MOV, or OGG video.');
+    }
+    if (mediaUrl.length > 8_500_000) {
+      throw new Error('Please choose a video under 6 MB.');
+    }
+    return mediaUrl;
+  }
+
+  if (!isValidPhoto) {
+    throw new Error('Upload a JPG, PNG, WEBP, or GIF image.');
+  }
+
+  if (mediaUrl.length > 3_000_000) {
+    throw new Error('Please choose an image under 2 MB.');
+  }
+
+  return mediaUrl;
+}
+
+function getGalleryPayload(db, includeInactive = false) {
+  const where = includeInactive ? '' : 'WHERE active = 1';
+  const items = db.prepare(`
+    SELECT *
+    FROM gallery_items
+    ${where}
+    ORDER BY sort_order, datetime(created_at) DESC, id DESC
+  `).all();
+  const categories = db.prepare(`
+    SELECT *
+    FROM gallery_categories
+    ORDER BY sort_order, name
+  `).all();
+
+  return { categories, items };
+}
+
+function normalizeGalleryCategory(value) {
+  const category = String(value || 'Photos').trim();
+  return category || 'Photos';
+}
+
+function ensureGalleryCategoryExists(db, categoryName) {
+  const category = normalizeGalleryCategory(categoryName);
+  const exists = db.prepare('SELECT 1 FROM gallery_categories WHERE name = ?').get(category);
+  if (!exists) {
+    throw new Error('Choose an existing gallery category or create it first.');
+  }
+  return category;
+}
+
+function normalizeGalleryMediaType(value) {
+  const mediaType = String(value || 'photo').trim().toLowerCase();
+  return mediaType === 'video' ? 'video' : 'photo';
+}
+
 function getAdminMenuPayload(db) {
   const categories = db.prepare('SELECT * FROM menu_categories ORDER BY sort_order, name').all();
   const items = db.prepare('SELECT * FROM menu_items ORDER BY category_id, sort_order, name').all();
@@ -328,6 +394,146 @@ router.put('/items/:id', requireAdmin, (req, res) => {
   } catch (err) {
     console.error('Item update failed:', err.message);
     res.status(500).json({ success: false, message: err.message || 'Failed to update item.' });
+  }
+});
+
+router.get('/gallery', requireAdmin, (req, res) => {
+  try {
+    const db = getDb();
+    res.json({ success: true, data: getGalleryPayload(db, true) });
+  } catch (err) {
+    console.error('Admin gallery fetch failed:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to fetch gallery media.' });
+  }
+});
+
+router.post('/gallery/categories', requireAdmin, (req, res) => {
+  try {
+    const db = getDb();
+    const name = normalizeGalleryCategory(req.body.name);
+    const sortOrder = Number.isFinite(Number(req.body.sort_order)) ? Number(req.body.sort_order) : 100;
+
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Category name is required.' });
+    }
+
+    db.prepare(`
+      INSERT INTO gallery_categories (name, sort_order)
+      VALUES (?, ?)
+    `).run(name, sortOrder);
+
+    res.status(201).json({ success: true, data: getGalleryPayload(db, true) });
+  } catch (err) {
+    const isDuplicate = /UNIQUE/i.test(err.message);
+    console.error('Gallery category creation failed:', err.message);
+    res.status(isDuplicate ? 400 : 500).json({
+      success: false,
+      message: isDuplicate ? 'That gallery category already exists.' : (err.message || 'Failed to create gallery category.'),
+    });
+  }
+});
+
+router.delete('/gallery/categories/:id', requireAdmin, (req, res) => {
+  try {
+    const db = getDb();
+    const category = db.prepare('SELECT * FROM gallery_categories WHERE id = ?').get(req.params.id);
+    if (!category) {
+      return res.status(404).json({ success: false, message: 'Gallery category not found.' });
+    }
+    if (category.name === 'Photos') {
+      return res.status(400).json({ success: false, message: 'The Photos category cannot be deleted.' });
+    }
+
+    const fallback = db.prepare('SELECT 1 FROM gallery_categories WHERE name = ?').get('Photos');
+    if (!fallback) {
+      db.prepare('INSERT INTO gallery_categories (name, sort_order) VALUES (?, ?)').run('Photos', 10);
+    }
+
+    const deleteCategory = db.transaction(() => {
+      db.prepare('UPDATE gallery_items SET category = ?, updated_at = datetime(\'now\') WHERE category = ?').run('Photos', category.name);
+      db.prepare('DELETE FROM gallery_categories WHERE id = ?').run(category.id);
+    });
+    deleteCategory();
+
+    res.json({ success: true, data: getGalleryPayload(db, true) });
+  } catch (err) {
+    console.error('Gallery category delete failed:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to delete gallery category.' });
+  }
+});
+
+router.post('/gallery', requireAdmin, (req, res) => {
+  try {
+    const db = getDb();
+    const title = String(req.body.title || '').trim();
+    const caption = String(req.body.caption || '').trim() || null;
+    const category = ensureGalleryCategoryExists(db, req.body.category);
+    const mediaType = normalizeGalleryMediaType(req.body.media_type);
+    const imageUrl = validateGalleryDataUrl(req.body.image_url, mediaType);
+    const active = req.body.active === undefined ? 1 : (req.body.active ? 1 : 0);
+    const sortOrder = Number.isFinite(Number(req.body.sort_order)) ? Number(req.body.sort_order) : 0;
+
+    if (!title) {
+      return res.status(400).json({ success: false, message: 'Gallery title is required.' });
+    }
+
+    db.prepare(`
+      INSERT INTO gallery_items (title, category, media_type, image_url, caption, active, sort_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(title, category, mediaType, imageUrl, caption, active, sortOrder);
+
+    res.status(201).json({ success: true, data: getGalleryPayload(db, true) });
+  } catch (err) {
+    console.error('Gallery item creation failed:', err.message);
+    res.status(500).json({ success: false, message: err.message || 'Failed to create gallery item.' });
+  }
+});
+
+router.put('/gallery/:id', requireAdmin, (req, res) => {
+  try {
+    const db = getDb();
+    const current = db.prepare('SELECT * FROM gallery_items WHERE id = ?').get(req.params.id);
+    if (!current) {
+      return res.status(404).json({ success: false, message: 'Gallery item not found.' });
+    }
+
+    const title = String(req.body.title ?? current.title).trim();
+    const caption = req.body.caption === undefined ? current.caption : (String(req.body.caption || '').trim() || null);
+    const category = req.body.category === undefined ? current.category : ensureGalleryCategoryExists(db, req.body.category);
+    const mediaType = req.body.media_type === undefined ? current.media_type : normalizeGalleryMediaType(req.body.media_type);
+    const imageUrl = req.body.image_url === undefined ? current.image_url : validateGalleryDataUrl(req.body.image_url, mediaType);
+    const active = req.body.active === undefined ? current.active : (req.body.active ? 1 : 0);
+    const sortOrder = Number.isFinite(Number(req.body.sort_order)) ? Number(req.body.sort_order) : current.sort_order;
+
+    if (!title) {
+      return res.status(400).json({ success: false, message: 'Gallery title is required.' });
+    }
+
+    db.prepare(`
+      UPDATE gallery_items
+      SET title = ?, category = ?, media_type = ?, image_url = ?, caption = ?, active = ?, sort_order = ?, updated_at = datetime('now')
+      WHERE id = ?
+    `).run(title, category, mediaType, imageUrl, caption, active, sortOrder, req.params.id);
+
+    res.json({ success: true, data: getGalleryPayload(db, true) });
+  } catch (err) {
+    console.error('Gallery item update failed:', err.message);
+    res.status(500).json({ success: false, message: err.message || 'Failed to update gallery item.' });
+  }
+});
+
+router.delete('/gallery/:id', requireAdmin, (req, res) => {
+  try {
+    const db = getDb();
+    const result = db.prepare('DELETE FROM gallery_items WHERE id = ?').run(req.params.id);
+    if (result.changes === 0) {
+      return res.status(404).json({ success: false, message: 'Gallery item not found.' });
+    }
+
+    res.json({ success: true, data: getGalleryPayload(db, true) });
+  } catch (err) {
+    console.error('Gallery item delete failed:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to delete gallery item.' });
   }
 });
 

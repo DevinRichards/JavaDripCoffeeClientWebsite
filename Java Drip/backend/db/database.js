@@ -190,6 +190,26 @@ function initializeDatabase() {
       created_at TEXT DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS gallery_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      category TEXT DEFAULT 'Photos',
+      media_type TEXT DEFAULT 'photo',
+      image_url TEXT NOT NULL,
+      caption TEXT,
+      active INTEGER DEFAULT 1,
+      sort_order INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS gallery_categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE,
+      sort_order INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS admin_users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -314,6 +334,12 @@ function initializeDatabase() {
     db.exec('ALTER TABLE locations ADD COLUMN hours_sunday TEXT');
   }
 
+  const galleryColumns = db.pragma('table_info(gallery_items)').map(c => c.name);
+  if (!galleryColumns.includes('updated_at')) {
+    db.exec("ALTER TABLE gallery_items ADD COLUMN updated_at TEXT DEFAULT (datetime('now'))");
+  }
+  ensureGalleryCategories(db);
+
   const count = db.prepare('SELECT COUNT(*) as count FROM menu_categories').get();
   if (count.count === 0) seedDatabase(db);
   replacePlaceholderMenuIfPresent(db);
@@ -325,6 +351,32 @@ function initializeDatabase() {
   ensureBootstrapAdmin(db);
 
   console.log('✅ Database initialized');
+}
+
+function ensureGalleryCategories(db) {
+  const defaultCategories = ['Photos', 'Videos', 'Store + Team'];
+  const insertCategory = db.prepare(`
+    INSERT OR IGNORE INTO gallery_categories (name, sort_order)
+    VALUES (?, ?)
+  `);
+
+  const ensureDefaults = db.transaction(() => {
+    defaultCategories.forEach((category, index) => {
+      insertCategory.run(category, (index + 1) * 10);
+    });
+
+    const itemCategories = db.prepare(`
+      SELECT DISTINCT category
+      FROM gallery_items
+      WHERE category IS NOT NULL AND trim(category) <> ''
+    `).all();
+
+    for (const row of itemCategories) {
+      insertCategory.run(row.category, 1000);
+    }
+  });
+
+  ensureDefaults();
 }
 
 function ensureLocationDetails(db) {

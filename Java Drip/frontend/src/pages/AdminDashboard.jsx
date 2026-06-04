@@ -4,16 +4,33 @@ import {
   cancelAdminOrder,
   confirmAdminOrder,
   createAdminCategory,
+  createAdminGalleryCategory,
+  createAdminGalleryItem,
   createAdminItem,
+  deleteAdminGalleryCategory,
+  deleteAdminGalleryItem,
+  fetchAdminGallery,
   fetchAdminOrders,
   fetchAdminMenu,
   updateAdminCategory,
+  updateAdminGalleryItem,
   updateAdminItem,
 } from '../api';
 import { useEmployee } from '../context/EmployeeContext';
 
 const EMPTY_CATEGORY_FORM = { name: '', subtitle: '' };
+const EMPTY_GALLERY_FORM = {
+  title: '',
+  category: 'Photos',
+  media_type: 'photo',
+  image_url: '',
+  caption: '',
+  active: true,
+  sort_order: 0,
+};
+const EMPTY_GALLERY_CATEGORY_FORM = { name: '' };
 const MAX_IMAGE_FILE_SIZE = 2 * 1024 * 1024;
+const MAX_GALLERY_VIDEO_FILE_SIZE = 6 * 1024 * 1024;
 const ORDER_POLL_INTERVAL_MS = 15000;
 const ORDER_ALERTS_ENABLED_KEY = 'jd_admin_order_alerts_enabled';
 const SEEN_ORDER_IDS_KEY = 'jd_admin_seen_order_ids';
@@ -106,7 +123,7 @@ function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error('Could not read that image file.'));
+    reader.onerror = () => reject(new Error('Could not read that media file.'));
     reader.readAsDataURL(file);
   });
 }
@@ -119,6 +136,18 @@ function normalizeItemForSave(item) {
     price: item.price,
     image_url: item.image_url,
     badge: item.badge,
+    active: Boolean(item.active),
+    sort_order: Number(item.sort_order) || 0,
+  };
+}
+
+function normalizeGalleryForSave(item) {
+  return {
+    title: item.title,
+    category: item.category,
+    media_type: item.media_type,
+    image_url: item.image_url,
+    caption: item.caption,
     active: Boolean(item.active),
     sort_order: Number(item.sort_order) || 0,
   };
@@ -144,6 +173,11 @@ export default function AdminDashboard({ section = 'orders' }) {
   const [newCategory, setNewCategory] = useState(EMPTY_CATEGORY_FORM);
   const [newItem, setNewItem] = useState(createEmptyItem());
   const [orders, setOrders] = useState([]);
+  const [galleryCategories, setGalleryCategories] = useState([]);
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [newGalleryItem, setNewGalleryItem] = useState(EMPTY_GALLERY_FORM);
+  const [newGalleryCategory, setNewGalleryCategory] = useState(EMPTY_GALLERY_CATEGORY_FORM);
+  const [selectedGalleryCategory, setSelectedGalleryCategory] = useState('All Media');
   const [orderForms, setOrderForms] = useState({});
   const [orderNotice, setOrderNotice] = useState(null);
   const [alertsEnabled, setAlertsEnabled] = useState(() => {
@@ -158,6 +192,7 @@ export default function AdminDashboard({ section = 'orders' }) {
   const initialOrdersLoadedRef = useRef(false);
   const isOrdersPage = section === 'orders';
   const isMenuPage = section === 'menu';
+  const isGalleryPage = section === 'gallery';
 
   useEffect(() => {
     if (!token) return;
@@ -190,7 +225,18 @@ export default function AdminDashboard({ section = 'orders' }) {
           setLoadingOrders(false);
         });
     }
-  }, [token, isMenuPage, isOrdersPage]);
+    if (isGalleryPage) {
+      setLoading(true);
+      fetchAdminGallery(token)
+        .then((galleryResponse) => {
+          updateGalleryState(galleryResponse.data);
+        })
+        .catch((err) => setError(err.message || 'Could not load gallery media.'))
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [token, isMenuPage, isOrdersPage, isGalleryPage]);
 
   useEffect(() => {
     if (!token || !isOrdersPage) return undefined;
@@ -238,6 +284,11 @@ export default function AdminDashboard({ section = 'orders' }) {
     () => menu.find((category) => category.id === selectedCategoryId) || menu[0] || null,
     [menu, selectedCategoryId]
   );
+  const filteredGalleryItems = useMemo(() => (
+    selectedGalleryCategory === 'All Media'
+      ? galleryItems
+      : galleryItems.filter((item) => item.category === selectedGalleryCategory)
+  ), [galleryItems, selectedGalleryCategory]);
 
   useEffect(() => {
     if (selectedCategory && !newItem.category_id) {
@@ -293,6 +344,24 @@ export default function AdminDashboard({ section = 'orders' }) {
         admin_notes: current[order.id]?.admin_notes ?? order.admin_notes ?? '',
       }])),
     }));
+  };
+
+  const updateGalleryState = (payload) => {
+    const nextCategories = payload?.categories || [];
+    const nextItems = payload?.items || [];
+    setGalleryCategories(nextCategories);
+    setGalleryItems(nextItems);
+    setNewGalleryItem((current) => ({
+      ...current,
+      category: nextCategories.some((category) => category.name === current.category)
+        ? current.category
+        : nextCategories[0]?.name || 'Photos',
+    }));
+    setSelectedGalleryCategory((current) => (
+      current === 'All Media' || nextCategories.some((category) => category.name === current)
+        ? current
+        : 'All Media'
+    ));
   };
 
   const enableOrderAlerts = async () => {
@@ -361,6 +430,60 @@ export default function AdminDashboard({ section = 'orders' }) {
     } catch (err) {
       setError(err.message || 'Could not process that image file.');
     }
+  };
+
+  const handleNewGalleryMediaUpload = async (file) => {
+    if (!file) return;
+    const isVideo = file.type.startsWith('video/');
+    const maxSize = isVideo ? MAX_GALLERY_VIDEO_FILE_SIZE : MAX_IMAGE_FILE_SIZE;
+    if (file.size > maxSize) {
+      setError(isVideo
+        ? 'Please choose a video under 6 MB so the gallery stays fast.'
+        : 'Please choose an image under 2 MB so the gallery stays fast.');
+      return;
+    }
+
+    setError('');
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setNewGalleryItem((current) => ({
+        ...current,
+        media_type: isVideo ? 'video' : 'photo',
+        image_url: dataUrl,
+      }));
+      setSuccessMessage(isVideo ? 'Gallery video added to the draft.' : 'Gallery image added to the draft.');
+    } catch (err) {
+      setError(err.message || 'Could not process that media file.');
+    }
+  };
+
+  const handleExistingGalleryMediaUpload = async (galleryItemId, file) => {
+    if (!file) return;
+    const isVideo = file.type.startsWith('video/');
+    const maxSize = isVideo ? MAX_GALLERY_VIDEO_FILE_SIZE : MAX_IMAGE_FILE_SIZE;
+    if (file.size > maxSize) {
+      setError(isVideo
+        ? 'Please choose a video under 6 MB so the gallery stays fast.'
+        : 'Please choose an image under 2 MB so the gallery stays fast.');
+      return;
+    }
+
+    setError('');
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setGalleryItems((current) => current.map((item) => (
+        item.id === galleryItemId ? { ...item, media_type: isVideo ? 'video' : 'photo', image_url: dataUrl } : item
+      )));
+      setSuccessMessage('Media ready for upload. Save the gallery item to publish it.');
+    } catch (err) {
+      setError(err.message || 'Could not process that media file.');
+    }
+  };
+
+  const handleGalleryFieldChange = (galleryItemId, field, value) => {
+    setGalleryItems((current) => current.map((item) => (
+      item.id === galleryItemId ? { ...item, [field]: value } : item
+    )));
   };
 
   const handleOrderFieldChange = (orderId, field, value) => {
@@ -490,6 +613,96 @@ export default function AdminDashboard({ section = 'orders' }) {
     }
   };
 
+  const handleCreateGalleryItem = async (event) => {
+    event.preventDefault();
+    setSaving('new-gallery-item');
+    setError('');
+    setSuccessMessage('');
+    try {
+      const response = await createAdminGalleryItem(token, normalizeGalleryForSave(newGalleryItem));
+      updateGalleryState(response.data);
+      setNewGalleryItem({
+        ...EMPTY_GALLERY_FORM,
+        category: galleryCategories[0]?.name || 'Photos',
+      });
+      setSuccessMessage('Gallery photo published.');
+    } catch (err) {
+      setError(err.message || 'Could not create the gallery item.');
+    } finally {
+      setSaving('');
+    }
+  };
+
+  const handleCreateGalleryCategory = async (event) => {
+    event.preventDefault();
+    setSaving('new-gallery-category');
+    setError('');
+    setSuccessMessage('');
+    try {
+      const response = await createAdminGalleryCategory(token, newGalleryCategory);
+      updateGalleryState(response.data);
+      setSelectedGalleryCategory(newGalleryCategory.name.trim());
+      setNewGalleryCategory(EMPTY_GALLERY_CATEGORY_FORM);
+      setSuccessMessage('Gallery category created.');
+    } catch (err) {
+      setError(err.message || 'Could not create the gallery category.');
+    } finally {
+      setSaving('');
+    }
+  };
+
+  const handleDeleteGalleryCategory = async (category) => {
+    const confirmed = window.confirm(`Delete "${category.name}"? Photos in this category will move to Photos.`);
+    if (!confirmed) return;
+
+    setSaving(`delete-gallery-category-${category.id}`);
+    setError('');
+    setSuccessMessage('');
+    try {
+      const response = await deleteAdminGalleryCategory(token, category.id);
+      updateGalleryState(response.data);
+      setSelectedGalleryCategory('All Media');
+      setSuccessMessage('Gallery category deleted.');
+    } catch (err) {
+      setError(err.message || 'Could not delete the gallery category.');
+    } finally {
+      setSaving('');
+    }
+  };
+
+  const saveGalleryItem = async (item) => {
+    setSaving(`gallery-${item.id}`);
+    setError('');
+    setSuccessMessage('');
+    try {
+      const response = await updateAdminGalleryItem(token, item.id, normalizeGalleryForSave(item));
+      updateGalleryState(response.data);
+      setSuccessMessage(`Saved ${item.title}.`);
+    } catch (err) {
+      setError(err.message || 'Could not save the gallery item.');
+    } finally {
+      setSaving('');
+    }
+  };
+
+  const deleteGalleryItem = async (item) => {
+    const confirmed = window.confirm(`Delete "${item.title}" from the gallery?`);
+    if (!confirmed) return;
+
+    setSaving(`delete-gallery-${item.id}`);
+    setError('');
+    setSuccessMessage('');
+    try {
+      const response = await deleteAdminGalleryItem(token, item.id);
+      updateGalleryState(response.data);
+      setSuccessMessage('Gallery item deleted.');
+    } catch (err) {
+      setError(err.message || 'Could not delete the gallery item.');
+    } finally {
+      setSaving('');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f4f1ea] text-on-surface">
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-10">
@@ -499,12 +712,14 @@ export default function AdminDashboard({ section = 'orders' }) {
               <div>
                 <p className="font-label uppercase tracking-[0.24em] text-[11px] font-bold text-white/70 mb-3">Java Drip Coffee Staff</p>
                 <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.9]">
-                  {isOrdersPage ? 'Pickup Command Center' : 'Menu Control Room'}
+                  {isOrdersPage ? 'Pickup Command Center' : isGalleryPage ? 'Gallery Studio' : 'Menu Control Room'}
                 </h1>
                 <p className="text-white/75 mt-4 max-w-2xl text-sm md:text-base leading-relaxed">
                   {isOrdersPage
                     ? 'Review paid pickup orders, confirm pickup timing, and notify customers when their order is ready.'
-                    : 'Manage the public website menu, create new items, update prices, and keep categories organized.'}
+                    : isGalleryPage
+                      ? 'Upload gallery photos, organize categories, and choose what appears on the public website.'
+                      : 'Manage the public website menu, create new items, update prices, and keep categories organized.'}
                 </p>
               </div>
               <div className="bg-white/10 border border-white/10 rounded-3xl px-6 py-5 min-w-[280px]">
@@ -572,6 +787,7 @@ export default function AdminDashboard({ section = 'orders' }) {
             {[
               { to: '/admin/orders', label: 'Pickup Orders' },
               { to: '/admin/menu', label: 'Menu Editor' },
+              { to: '/admin/gallery', label: 'Gallery Media' },
             ].map((item) => (
               <NavLink
                 key={item.to}
@@ -759,6 +975,278 @@ export default function AdminDashboard({ section = 'orders' }) {
                   ))}
                 </div>
               )}
+            </section>
+            )}
+
+            {isGalleryPage && (
+            <section className="xl:col-span-12 space-y-6">
+              <div className="bg-white border border-brand-charcoal/10 rounded-3xl p-6 md:p-8">
+                <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-6">
+                  <div>
+                    <p className="font-label uppercase tracking-widest text-[10px] font-bold text-on-surface-variant mb-2">Gallery Categories</p>
+                    <h2 className="font-headline font-black text-3xl tracking-tight">Choose A Gallery Tab</h2>
+                  </div>
+                  <form onSubmit={handleCreateGalleryCategory} className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      value={newGalleryCategory.name}
+                      onChange={(event) => setNewGalleryCategory((current) => ({ ...current, name: event.target.value }))}
+                      placeholder="Events"
+                      className="rounded-2xl bg-surface-container-high px-4 py-3"
+                      required
+                    />
+                    <button
+                      type="submit"
+                      disabled={saving === 'new-gallery-category'}
+                      className="rounded-2xl bg-brand-charcoal px-5 py-3 font-label text-xs font-bold uppercase tracking-widest text-white disabled:opacity-60"
+                    >
+                      {saving === 'new-gallery-category' ? 'Creating…' : 'Create Category'}
+                    </button>
+                  </form>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  {['All Media', ...galleryCategories.map((category) => category.name)].map((categoryName) => (
+                    <button
+                      key={categoryName}
+                      type="button"
+                      onClick={() => setSelectedGalleryCategory(categoryName)}
+                      className={`rounded-full px-5 py-3 text-xs uppercase tracking-widest font-label font-bold transition-colors ${
+                        selectedGalleryCategory === categoryName
+                          ? 'bg-primary text-white'
+                          : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+                      }`}
+                    >
+                      {categoryName}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {galleryCategories.map((category) => (
+                    <div key={category.id} className="flex items-center justify-between gap-3 rounded-2xl bg-[#faf8f2] px-4 py-3">
+                      <div>
+                        <p className="font-headline font-black tracking-tight">{category.name}</p>
+                        <p className="text-xs text-on-surface-variant">
+                          {galleryItems.filter((item) => item.category === category.name).length} item{galleryItems.filter((item) => item.category === category.name).length === 1 ? '' : 's'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteGalleryCategory(category)}
+                        disabled={category.name === 'Photos' || saving === `delete-gallery-category-${category.id}`}
+                        className="rounded-full border border-rose-300/70 px-3 py-2 font-label text-[10px] font-bold uppercase tracking-widest text-rose-700 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-[#faf8f2] border border-brand-charcoal/10 rounded-3xl p-6 md:p-8">
+                <p className="font-label uppercase tracking-widest text-[10px] font-bold text-on-surface-variant mb-2">Add Gallery Media</p>
+                <h2 className="font-headline font-black text-3xl tracking-tight mb-6">Upload Media</h2>
+                <form onSubmit={handleCreateGalleryItem} className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                  <div className="lg:col-span-4">
+                    <label className="font-label uppercase tracking-widest text-[10px] font-bold text-on-surface-variant block mb-2">Photo or Video</label>
+                    <div className="rounded-[28px] border border-dashed border-brand-charcoal/20 bg-white p-4">
+                      <div className="aspect-[4/3] overflow-hidden rounded-[22px] bg-surface-container flex items-center justify-center">
+                        {newGalleryItem.image_url && newGalleryItem.media_type === 'video' ? (
+                          <video src={newGalleryItem.image_url} controls className="h-full w-full object-cover" />
+                        ) : newGalleryItem.image_url ? (
+                          <img src={newGalleryItem.image_url} alt="New gallery preview" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="material-symbols-outlined text-5xl text-outline-variant">perm_media</span>
+                        )}
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm,video/ogg,video/quicktime"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          void handleNewGalleryMediaUpload(file);
+                          event.target.value = '';
+                        }}
+                        className="mt-4 block w-full rounded-2xl bg-surface-container-high px-4 py-3 text-sm"
+                        required={!newGalleryItem.image_url}
+                      />
+                      <p className="mt-2 text-xs text-on-surface-variant">Upload photos up to 2 MB or short videos up to 6 MB.</p>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4 content-start">
+                    <input
+                      value={newGalleryItem.title}
+                      onChange={(event) => setNewGalleryItem((current) => ({ ...current, title: event.target.value }))}
+                      placeholder="Latte art morning"
+                      className="rounded-2xl bg-white px-4 py-3"
+                      required
+                    />
+                    <select
+                      value={newGalleryItem.category}
+                      onChange={(event) => setNewGalleryItem((current) => ({ ...current, category: event.target.value }))}
+                      className="rounded-2xl bg-white px-4 py-3"
+                    >
+                      {galleryCategories.map((category) => (
+                        <option key={category.id} value={category.name}>{category.name}</option>
+                      ))}
+                    </select>
+                    <input
+                      value={newGalleryItem.sort_order}
+                      onChange={(event) => setNewGalleryItem((current) => ({ ...current, sort_order: event.target.value }))}
+                      placeholder="Sort order"
+                      className="rounded-2xl bg-white px-4 py-3"
+                    />
+                    <select
+                      value={newGalleryItem.media_type}
+                      onChange={(event) => setNewGalleryItem((current) => ({ ...current, media_type: event.target.value }))}
+                      className="rounded-2xl bg-white px-4 py-3"
+                    >
+                      <option value="photo">Photo</option>
+                      <option value="video">Video</option>
+                    </select>
+                    <label className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-on-surface-variant">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(newGalleryItem.active)}
+                        onChange={(event) => setNewGalleryItem((current) => ({ ...current, active: event.target.checked }))}
+                      />
+                      Show on public gallery
+                    </label>
+                    <textarea
+                      value={newGalleryItem.caption}
+                      onChange={(event) => setNewGalleryItem((current) => ({ ...current, caption: event.target.value }))}
+                      placeholder="Optional caption"
+                      rows={4}
+                      className="rounded-2xl bg-white px-4 py-3 resize-none md:col-span-2"
+                    />
+                    <button
+                      type="submit"
+                      disabled={saving === 'new-gallery-item'}
+                      className="md:col-span-2 kinetic-gradient text-white font-label font-bold py-3 rounded-2xl uppercase tracking-widest text-xs disabled:opacity-60"
+                    >
+                      {saving === 'new-gallery-item' ? 'Publishing…' : 'Publish Gallery Media'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <div className="bg-white border border-brand-charcoal/10 rounded-3xl p-6 md:p-8">
+                <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+                  <div>
+                    <p className="font-label uppercase tracking-widest text-[10px] font-bold text-on-surface-variant mb-2">Gallery Library</p>
+                    <h2 className="font-headline font-black text-3xl tracking-tight">Uploaded Media</h2>
+                  </div>
+                  <p className="text-sm text-on-surface-variant">
+                    Live: <strong>{galleryItems.filter((item) => item.active).length}</strong> · Hidden: <strong>{galleryItems.filter((item) => !item.active).length}</strong>
+                  </p>
+                </div>
+
+                {loading ? (
+                  <div className="rounded-3xl bg-surface-container-low p-10 text-center text-on-surface-variant">
+                    Loading gallery media…
+                  </div>
+                ) : galleryItems.length === 0 ? (
+                  <div className="rounded-3xl bg-surface-container-low p-10 text-center text-on-surface-variant">
+                    No gallery media yet. Upload the first item above.
+                  </div>
+                ) : filteredGalleryItems.length === 0 ? (
+                  <div className="rounded-3xl bg-surface-container-low p-10 text-center text-on-surface-variant">
+                    No gallery media in {selectedGalleryCategory} yet.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    {filteredGalleryItems.map((item) => (
+                      <div key={item.id} className="rounded-3xl border border-brand-charcoal/10 bg-[#faf8f2] p-5">
+                        <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-5">
+                          <div>
+                            <div className="aspect-square overflow-hidden rounded-[24px] bg-surface-container">
+                              {item.media_type === 'video' ? (
+                                <video src={item.image_url} controls className="h-full w-full object-cover" />
+                              ) : (
+                                <img src={item.image_url} alt={item.title} className="h-full w-full object-cover" />
+                              )}
+                            </div>
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm,video/ogg,video/quicktime"
+                              onChange={(event) => {
+                                const file = event.target.files?.[0];
+                                void handleExistingGalleryMediaUpload(item.id, file);
+                                event.target.value = '';
+                              }}
+                              className="mt-3 block w-full rounded-2xl bg-white px-3 py-2 text-xs"
+                            />
+                          </div>
+                          <div className="space-y-3">
+                            <input
+                              value={item.title}
+                              onChange={(event) => handleGalleryFieldChange(item.id, 'title', event.target.value)}
+                              className="w-full rounded-2xl bg-white px-4 py-3 font-bold"
+                            />
+                            <div className="grid grid-cols-2 gap-3">
+                              <select
+                                value={item.category}
+                                onChange={(event) => handleGalleryFieldChange(item.id, 'category', event.target.value)}
+                                className="rounded-2xl bg-white px-4 py-3"
+                              >
+                                {galleryCategories.map((category) => (
+                                  <option key={category.id} value={category.name}>{category.name}</option>
+                                ))}
+                              </select>
+                              <input
+                                value={item.sort_order || 0}
+                                onChange={(event) => handleGalleryFieldChange(item.id, 'sort_order', event.target.value)}
+                                className="rounded-2xl bg-white px-4 py-3"
+                              />
+                              <select
+                                value={item.media_type || 'photo'}
+                                onChange={(event) => handleGalleryFieldChange(item.id, 'media_type', event.target.value)}
+                                className="col-span-2 rounded-2xl bg-white px-4 py-3"
+                              >
+                                <option value="photo">Photo</option>
+                                <option value="video">Video</option>
+                              </select>
+                            </div>
+                            <textarea
+                              value={item.caption || ''}
+                              onChange={(event) => handleGalleryFieldChange(item.id, 'caption', event.target.value)}
+                              rows={3}
+                              className="w-full rounded-2xl bg-white px-4 py-3 resize-none"
+                            />
+                            <label className="inline-flex items-center gap-3 text-sm text-on-surface-variant">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(item.active)}
+                                onChange={(event) => handleGalleryFieldChange(item.id, 'active', event.target.checked)}
+                              />
+                              Show on public gallery
+                            </label>
+                            <div className="flex flex-wrap gap-3">
+                              <button
+                                type="button"
+                                onClick={() => saveGalleryItem(item)}
+                                disabled={saving === `gallery-${item.id}`}
+                                className="rounded-2xl bg-brand-charcoal px-5 py-3 font-label text-xs font-bold uppercase tracking-widest text-white disabled:opacity-60"
+                              >
+                                {saving === `gallery-${item.id}` ? 'Saving…' : 'Save'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => deleteGalleryItem(item)}
+                                disabled={saving === `delete-gallery-${item.id}`}
+                                className="rounded-2xl border border-rose-300/70 px-5 py-3 font-label text-xs font-bold uppercase tracking-widest text-rose-700 disabled:opacity-60"
+                              >
+                                {saving === `delete-gallery-${item.id}` ? 'Deleting…' : 'Delete'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </section>
             )}
 

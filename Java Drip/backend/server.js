@@ -48,7 +48,7 @@ function corsMiddleware(req, res, next) {
 app.use('/api', corsMiddleware);
 app.use(securityHeaders);
 app.use(express.json({
-  limit: '1mb',
+  limit: '9mb',
   verify: (req, res, buf) => {
     req.rawBody = buf.toString('utf8');
   },
@@ -74,6 +74,7 @@ app.use('/api/menu',    require('./routes/menu'));
 app.use('/api/orders',  require('./routes/orders'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/locations', require('./routes/locations'));
+app.use('/api/gallery', require('./routes/gallery'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/customer', require('./routes/auth'));
 app.use('/api/payments', require('./routes/payments'));

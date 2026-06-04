@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Reveal from '../components/Reveal';
 import SocialLogo from '../components/SocialLogo';
 import { SOCIAL_PROFILES } from '../content/socialMedia';
+import { fetchGallery } from '../api';
 
 const GALLERY_CATEGORIES = ['All Media', 'Photos', 'Videos', 'Store + Team'];
 
@@ -28,7 +29,36 @@ function SafeImage({ src, alt, className }) {
 
 export default function Gallery() {
   const [activeSocialId, setActiveSocialId] = useState('instagram');
+  const [activeCategory, setActiveCategory] = useState('All Media');
+  const [galleryCategories, setGalleryCategories] = useState([]);
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [galleryLoading, setGalleryLoading] = useState(true);
   const activeSocial = SOCIAL_PROFILES.find((profile) => profile.id === activeSocialId) || SOCIAL_PROFILES[0];
+  const filteredGalleryItems = useMemo(() => (
+    activeCategory === 'All Media'
+      ? galleryItems
+      : galleryItems.filter((item) => item.category === activeCategory)
+  ), [activeCategory, galleryItems]);
+
+  useEffect(() => {
+    fetchGallery()
+      .then((response) => {
+        setGalleryCategories(response.data?.categories || []);
+        setGalleryItems(response.data?.items || []);
+      })
+      .catch(() => {
+        setGalleryCategories([]);
+        setGalleryItems([]);
+      })
+      .finally(() => setGalleryLoading(false));
+  }, []);
+
+  const categoryTabs = useMemo(() => {
+    const names = galleryCategories.length > 0
+      ? galleryCategories.map((category) => category.name)
+      : GALLERY_CATEGORIES.filter((category) => category !== 'All Media');
+    return ['All Media', ...names];
+  }, [galleryCategories]);
 
   return (
     <div className="pt-20">
@@ -179,29 +209,87 @@ export default function Gallery() {
               </h2>
             </div>
             <p className="text-on-surface-variant max-w-xl leading-relaxed">
-              No images at this time, come back soon.
+              {galleryItems.length > 0
+                ? 'Browse the latest photos from Java Drip Coffee.'
+                : 'No images at this time, come back soon.'}
             </p>
           </div>
         </Reveal>
 
         <div className="flex flex-wrap gap-3">
-          {GALLERY_CATEGORIES.map((category) => (
-            <a
+          {categoryTabs.map((category) => (
+            <button
               key={category}
-              href="#social-integration"
-              className="rounded-full bg-white px-5 py-3 font-label text-xs font-bold uppercase tracking-widest text-on-surface shadow-sm transition-all hover:bg-primary hover:text-white"
+              type="button"
+              onClick={() => setActiveCategory(category)}
+              className={`rounded-full px-5 py-3 font-label text-xs font-bold uppercase tracking-widest shadow-sm transition-all ${
+                activeCategory === category
+                  ? 'bg-primary text-white'
+                  : 'bg-white text-on-surface hover:bg-primary hover:text-white'
+              }`}
             >
               {category}
-            </a>
+            </button>
           ))}
         </div>
 
-        <div className="mt-8 rounded-[28px] border border-brand-charcoal/10 bg-surface-container-low px-6 py-8 text-center">
-          <span className="material-symbols-outlined text-4xl text-outline-variant">coffee</span>
-          <p className="mt-3 font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-            No images at this time, come back soon.
-          </p>
-        </div>
+        {galleryLoading ? (
+          <div className="mt-8 rounded-[28px] border border-brand-charcoal/10 bg-surface-container-low px-6 py-8 text-center">
+            <span className="material-symbols-outlined text-4xl text-primary animate-spin">refresh</span>
+            <p className="mt-3 font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+              Loading gallery.
+            </p>
+          </div>
+        ) : filteredGalleryItems.length > 0 ? (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {filteredGalleryItems.map((item, index) => (
+              <Reveal key={item.id} delay={index * 60}>
+                <article className="group overflow-hidden rounded-[32px] bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-editorial">
+                  <div className="aspect-[4/5] overflow-hidden bg-surface-container">
+                    {item.media_type === 'video' ? (
+                      <video
+                        src={item.image_url}
+                        className="h-full w-full object-cover"
+                        controls
+                        preload="metadata"
+                        aria-label={item.title}
+                      >
+                      </video>
+                    ) : (
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    )}
+                  </div>
+                  <div className="p-6">
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      <span className="rounded-full bg-primary/10 px-3 py-1 font-label text-[10px] font-bold uppercase tracking-widest text-primary">
+                        {item.category}
+                      </span>
+                      <span className="rounded-full bg-surface-container-high px-3 py-1 font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                        {item.media_type === 'video' ? 'Video' : 'Photo'}
+                      </span>
+                    </div>
+                    <h3 className="font-headline text-2xl font-black tracking-tight text-on-surface">{item.title}</h3>
+                    {item.caption && (
+                      <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{item.caption}</p>
+                    )}
+                  </div>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-8 rounded-[28px] border border-brand-charcoal/10 bg-surface-container-low px-6 py-8 text-center">
+            <span className="material-symbols-outlined text-4xl text-outline-variant">coffee</span>
+            <p className="mt-3 font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+              No images at this time, come back soon.
+            </p>
+          </div>
+        )}
       </section>
 
       <section className="max-w-7xl mx-auto px-6 sm:px-8 py-16 lg:py-20">

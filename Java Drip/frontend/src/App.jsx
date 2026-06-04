@@ -77,6 +77,16 @@ function AnimatedRoutes() {
                 : <Navigate to="/admin/signin" replace />
           }
         />
+        <Route
+          path="/admin/gallery"
+          element={
+            loading
+              ? <div className="min-h-screen bg-surface" />
+              : isEmployeeSignedIn
+                ? <AdminDashboard section="gallery" />
+                : <Navigate to="/admin/signin" replace />
+          }
+        />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/order/:id" element={<OrderConfirmation />} />
         <Route path="/privacy" element={<Privacy />} />

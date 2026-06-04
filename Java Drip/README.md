@@ -11,7 +11,7 @@ The current production shape of the app is:
 
 - customers browse the menu and submit **pickup requests**
 - staff confirm pickup timing from the **admin panel**
-- customers can pay **at pickup**, with Square-hosted online pickup payments scaffolded and ready for credentials
+- customers pay online through **Square-hosted checkout** before the store confirms pickup timing
 - delivery still links out to **DoorDash**
 - menu content is managed in the site admin, not synced live from Clover
 - production deployment is prepared through the root `render.yaml`, with GoDaddy DNS steps documented in `../LAUNCH_WITH_GODADDY.md`
@@ -98,6 +98,7 @@ npm run backup:db
 | `/admin` | Redirects staff to the active admin workspace |
 | `/admin/orders` | Staff pickup queue |
 | `/admin/menu` | Staff menu management |
+| `/admin/gallery` | Staff gallery media and category management |
 
 ## Current Backend API
 
@@ -106,6 +107,7 @@ npm run backup:db
 | `GET` | `/api/health` | Health check |
 | `GET` | `/api/menu` | Public menu data |
 | `GET` | `/api/locations` | Pickup locations |
+| `GET` | `/api/gallery` | Public active gallery categories and media |
 | `POST` | `/api/orders` | Submit pickup request |
 | `GET` | `/api/orders/:id?token=...` | View a pickup order with token or signed-in owner access |
 | `GET` | `/api/payments/config` | Payment configuration status |
@@ -124,6 +126,12 @@ npm run backup:db
 | `GET` | `/api/admin/orders` | Staff pickup queue |
 | `POST` | `/api/admin/orders/:id/confirm` | Confirm pickup request |
 | `POST` | `/api/admin/orders/:id/cancel` | Cancel pickup request |
+| `GET` | `/api/admin/gallery` | Staff gallery media payload |
+| `POST` | `/api/admin/gallery/categories` | Create gallery category |
+| `DELETE` | `/api/admin/gallery/categories/:id` | Delete gallery category and move items to Photos |
+| `POST` | `/api/admin/gallery` | Create gallery photo/video |
+| `PUT` | `/api/admin/gallery/:id` | Update gallery photo/video |
+| `DELETE` | `/api/admin/gallery/:id` | Delete gallery photo/video |
 
 ## Core Features
 
@@ -140,7 +148,8 @@ npm run backup:db
   - image upload
   - category editing
   - pickup order confirmation
-- gallery page
+- gallery page with staff-managed photo/video uploads
+- gallery category management
 - embedded social section
 - DoorDash delivery link-out
 
@@ -207,6 +216,8 @@ It stores:
 - Square payment link metadata
 - order line items
 - contact submissions
+- gallery categories
+- gallery photo/video media
 
 ## Smoke Testing
 

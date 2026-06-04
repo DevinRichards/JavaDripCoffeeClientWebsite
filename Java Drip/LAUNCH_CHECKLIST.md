@@ -7,6 +7,22 @@ This checklist reflects the app as it exists today:
 - staff confirmation through the admin panel
 - Square online payment required for pickup orders
 - DoorDash delivery handoff
+- staff-managed photo/video gallery
+
+## Contract Completion TODO
+
+- [x] Full branded Java Drip Coffee website
+- [x] Digital menu with admin-managed items, pricing, add-ons, and categories
+- [x] Pickup ordering flow through the website
+- [x] DoorDash delivery handoff
+- [x] Social media integration with official Instagram, Facebook, and TikTok profiles
+- [x] Staff-managed photo gallery
+- [x] Staff-managed video gallery for short clips
+- [ ] Production Square checkout configured and tested with the client account
+- [ ] Production email notifications configured and tested
+- [ ] Persistent production storage verified for admin edits and gallery uploads
+- [ ] Final live customer/admin QA pass completed on the production URL
+- [ ] Client approval/sign-off
 
 ## 1. Production Environment
 
@@ -86,6 +102,9 @@ SQUARE_API_VERSION=2025-09-24
 - [ ] Review all menu category names
 - [ ] Review all item names, prices, and descriptions
 - [ ] Review item photos uploaded through the admin panel
+- [x] Staff can create and delete gallery categories
+- [x] Staff can upload gallery photos
+- [x] Staff can upload short gallery videos
 - [x] Review gallery page content and social imagery
 - [x] Confirm social links are correct:
   - Instagram
@@ -109,6 +128,7 @@ SQUARE_API_VERSION=2025-09-24
 - [x] Create a new item
 - [x] Update price, description, and image
 - [x] Archive and restore an item
+- [x] Create, edit, hide, and delete gallery media
 - [x] Verify new pickup orders trigger the in-panel admin notification banner
 - [x] Confirm a pending pickup request
 - [x] Verify the confirmed pickup time appears on the customer order page
@@ -179,6 +199,9 @@ Verify:
 - [ ] Pickup flow approved
 - [ ] Staff admin workflow approved
 - [ ] Delivery handoff wording approved
+- [ ] Production Square payment test approved
+- [ ] Production email notification test approved
+- [ ] Render persistent storage verified after redeploy
 
 ## Notes From Current QA Pass
 
@@ -189,4 +212,4 @@ Verify:
 - `npm run qa:visual` is passing across 12 routes and 3 viewport sizes, with screenshots saved to `qa-screenshots/`.
 - `npm run backup:db` is working and writing timestamped SQLite snapshots to `Java Drip/backend/backups/`.
 - Local auth readiness is healthy after setting the required backend session and Clerk variables.
-- Remaining unchecked items are either production-environment tasks, email-delivery verification, live Clerk sign-up verification, or client approval items.
+- Remaining unchecked items are either production-environment tasks, email-delivery verification, live Clerk sign-up verification, Square production testing, persistent storage verification, or client approval items.

@@ -123,10 +123,17 @@ export function getSeoConfig(pathname) {
         path: '/admin/menu',
         noindex: true,
       };
+    case '/admin/gallery':
+      return {
+        title: 'Gallery Media | Java Drip Coffee',
+        description: 'Internal gallery media dashboard for Java Drip Coffee staff.',
+        path: '/admin/gallery',
+        noindex: true,
+      };
     case '/checkout':
       return {
         title: 'Pickup Checkout | Java Drip Coffee',
-        description: 'Build a pickup order on the Java Drip Coffee website, then wait for store confirmation before paying at pickup.',
+        description: 'Review your Java Drip Coffee pickup order and complete checkout online.',
         path: '/checkout',
         noindex: true,
       };

@@ -23,6 +23,7 @@ function withCustomerAuth(token) {
 }
 
 export const fetchMenu = () => request('/menu');
+export const fetchGallery = () => request('/gallery');
 export const fetchLocations = () => request('/locations');
 export const fetchOrder = (id, token) => request(`/orders/${id}${token ? `?token=${encodeURIComponent(token)}` : ''}`);
 export const submitOrder = (body) => request('/orders', { method: 'POST', body: JSON.stringify(body) });
@@ -56,6 +57,30 @@ export const updateAdminItem = (token, itemId, body) => request(`/admin/items/${
   method: 'PUT',
   headers: withAdminAuth(token),
   body: JSON.stringify(body),
+});
+export const fetchAdminGallery = (token) => request('/admin/gallery', { headers: withAdminAuth(token) });
+export const createAdminGalleryCategory = (token, body) => request('/admin/gallery/categories', {
+  method: 'POST',
+  headers: withAdminAuth(token),
+  body: JSON.stringify(body),
+});
+export const deleteAdminGalleryCategory = (token, categoryId) => request(`/admin/gallery/categories/${categoryId}`, {
+  method: 'DELETE',
+  headers: withAdminAuth(token),
+});
+export const createAdminGalleryItem = (token, body) => request('/admin/gallery', {
+  method: 'POST',
+  headers: withAdminAuth(token),
+  body: JSON.stringify(body),
+});
+export const updateAdminGalleryItem = (token, itemId, body) => request(`/admin/gallery/${itemId}`, {
+  method: 'PUT',
+  headers: withAdminAuth(token),
+  body: JSON.stringify(body),
+});
+export const deleteAdminGalleryItem = (token, itemId) => request(`/admin/gallery/${itemId}`, {
+  method: 'DELETE',
+  headers: withAdminAuth(token),
 });
 export const fetchAdminOrders = (token) => request('/admin/orders', { headers: withAdminAuth(token) });
 export const confirmAdminOrder = (token, orderId, body) => request(`/admin/orders/${orderId}/confirm`, {

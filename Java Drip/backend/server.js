@@ -82,13 +82,6 @@ app.use('/api/payments', require('./routes/payments'));
 
 // Health check
 app.get('/api/health', (req, res) => {
-  if (process.env.NODE_ENV === 'production') {
-    return res.json({
-      status: 'ok',
-      message: '☕ Java Drip API is running',
-    });
-  }
-
   const adminAuth = getAdminAuthStatus();
 
   return res.json({
@@ -103,10 +96,16 @@ app.get('/api/health', (req, res) => {
     payments: {
       squareConfigured: Boolean(process.env.SQUARE_ACCESS_TOKEN && process.env.SQUARE_LOCATION_ID),
       squareEnvironment: process.env.SQUARE_ENVIRONMENT || 'sandbox',
+      webhookConfigured: Boolean(process.env.SQUARE_WEBHOOK_SIGNATURE_KEY && process.env.SQUARE_WEBHOOK_NOTIFICATION_URL),
     },
     email: {
       configured: isEmailConfigured(),
       toConfigured: Boolean(process.env.ORDER_NOTIFICATION_EMAIL || process.env.EMAIL_TO),
+    },
+    app: {
+      environment: process.env.NODE_ENV || 'development',
+      frontendUrlConfigured: Boolean(process.env.FRONTEND_URL),
+      persistentDatabaseConfigured: Boolean(process.env.SQLITE_DB_PATH),
     },
   });
 });

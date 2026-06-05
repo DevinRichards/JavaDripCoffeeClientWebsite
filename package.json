@@ -5,21 +5,7 @@
     "node": "22.x"
   },
   "scripts": {
-    "dev": "node scripts/dev.js",
-    "stop-dev": "node scripts/stop-dev.js",
-    "restart-dev": "npm run stop-dev && npm run dev",
-    "qa:smoke": "node scripts/qa-smoke.cjs",
-    "qa:customer-flow": "node scripts/qa-customer-flow.cjs",
-    "qa:admin-flow": "node scripts/qa-admin-flow.cjs",
-    "qa:admin-notifications": "node scripts/qa-admin-notifications.cjs",
-    "qa:visual": "node scripts/qa-visual.cjs",
-    "backup:db": "node scripts/backup-db.cjs",
-    "dev:backend": "npm --prefix \"./Java Drip/backend\" run dev",
-    "dev:frontend": "npm --prefix \"./Java Drip/frontend\" run dev",
     "build": "npm --prefix \"./Java Drip/frontend\" run build",
     "start": "npm --prefix \"./Java Drip/backend\" start"
-  },
-  "devDependencies": {
-    "playwright-core": "^1.60.0"
   }
 }

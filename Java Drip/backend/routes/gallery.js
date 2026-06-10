@@ -2,8 +2,13 @@ const express = require('express');
 const router = express.Router();
 const { getDb } = require('../db/database');
 
+function cachePublicData(res) {
+  res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+}
+
 router.get('/', (req, res) => {
   try {
+    cachePublicData(res);
     const db = getDb();
     const items = db.prepare(`
       SELECT id, title, category, media_type, image_url, caption, sort_order, created_at

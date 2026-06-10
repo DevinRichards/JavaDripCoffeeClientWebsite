@@ -6,8 +6,8 @@ import Reveal from '../components/Reveal';
 import { useCart } from '../context/CartContext';
 
 const DOORDASH_URL = 'https://www.doordash.com/store/java-drip-coffee-1307-e-historic-highway-66-gallup-35017583/75317750/';
-const ADDON_CATEGORY_IDS = new Set(['add-ons', 'milk-options']);
-const ADDON_CATEGORY_NAMES = new Set(['add ons', 'milk options']);
+const ADDON_CATEGORY_IDS = new Set(['add-ons', 'flavors', 'milk-options']);
+const ADDON_CATEGORY_NAMES = new Set(['add ons', 'flavors', 'milk options']);
 
 function isAddonCategory(category) {
   return ADDON_CATEGORY_IDS.has(category.id) || ADDON_CATEGORY_NAMES.has(String(category.name || '').toLowerCase());

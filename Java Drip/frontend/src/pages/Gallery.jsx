@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import LazyEmbed from '../components/LazyEmbed';
 import Reveal from '../components/Reveal';
 import SocialLogo from '../components/SocialLogo';
 import { SOCIAL_PROFILES } from '../content/socialMedia';
@@ -174,15 +175,15 @@ export default function Gallery() {
 
                   {activeSocial.embedUrl ? (
                     <div className="mt-8 overflow-hidden rounded-[24px] border border-brand-charcoal/10">
-                      <iframe
+                      <LazyEmbed
                         title={`Java Drip Coffee ${activeSocial.platform} profile`}
                         src={activeSocial.embedUrl}
-                        width="100%"
-                        height="420"
-                        style={{ border: 'none', overflow: 'hidden' }}
+                        height={420}
                         scrolling={activeSocial.id === 'facebook' ? 'no' : 'yes'}
                         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen"
+                        allowFullScreen
                         className="w-full bg-white"
+                        placeholder={`Loading ${activeSocial.platform} profile.`}
                       />
                     </div>
                   ) : (

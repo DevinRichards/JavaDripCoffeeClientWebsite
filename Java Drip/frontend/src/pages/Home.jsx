@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import LazyEmbed from '../components/LazyEmbed';
 import Reveal from '../components/Reveal';
 import SocialLogo from '../components/SocialLogo';
 import {
@@ -162,15 +163,14 @@ export default function Home() {
 
             <div className="xl:col-span-6">
               <div className="overflow-hidden rounded-[36px] bg-white p-4 shadow-editorial">
-                <iframe
+                <LazyEmbed
                   title="Java Drip Coffee Facebook feed"
                   src={FACEBOOK_EMBED_URL}
-                  width="100%"
-                  height="760"
-                  style={{ border: 'none', overflow: 'hidden' }}
+                  height={760}
                   scrolling="no"
                   allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                  className="w-full rounded-[28px]"
+                  className="w-full overflow-hidden rounded-[28px]"
+                  placeholder="Loading Java Drip Coffee updates."
                 />
               </div>
             </div>

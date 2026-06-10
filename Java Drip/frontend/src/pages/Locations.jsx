@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchLocations } from '../api';
+import LazyEmbed from '../components/LazyEmbed';
 
 const STATUS_MAP = {
   open: { label: 'Open Now', dot: 'bg-green-500', text: 'text-green-700' },
@@ -142,15 +143,14 @@ export default function Locations() {
 
               {/* Map embed */}
               <div className="rounded-xl overflow-hidden shadow-editorial h-[500px]">
-                <iframe
+                <LazyEmbed
                   title="Java Drip Coffee location map"
                   src={MAPS_EMBED}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
+                  height={500}
+                  allowFullScreen
                   referrerPolicy="no-referrer-when-downgrade"
+                  className="h-full w-full"
+                  placeholder="Loading Java Drip Coffee map."
                 />
               </div>
             </div>

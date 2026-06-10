@@ -113,9 +113,25 @@ app.get('/api/health', (req, res) => {
 // ─── Production static serving ───────────────────────────────────────────────
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+  const frontendDist = path.join(__dirname, '../frontend/dist');
+
+  app.use('/assets', express.static(path.join(frontendDist, 'assets'), {
+    immutable: true,
+    maxAge: '1y',
+  }));
+
+  app.use(express.static(frontendDist, {
+    maxAge: '1h',
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('index.html')) {
+        res.setHeader('Cache-Control', 'no-cache');
+      }
+    },
+  }));
+
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+    res.setHeader('Cache-Control', 'no-cache');
+    res.sendFile(path.join(frontendDist, 'index.html'));
   });
 }
 

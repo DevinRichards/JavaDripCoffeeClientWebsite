@@ -2,9 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { getDb } = require('../db/database');
 
+function cachePublicData(res) {
+  res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+}
+
 // GET /api/menu — all categories with their items
 router.get('/', (req, res) => {
   try {
+    cachePublicData(res);
     const db = getDb();
     const categories = db.prepare(
       'SELECT * FROM menu_categories ORDER BY sort_order'
@@ -29,6 +34,7 @@ router.get('/', (req, res) => {
 // GET /api/menu/items/:id — single item
 router.get('/items/:id', (req, res) => {
   try {
+    cachePublicData(res);
     const db = getDb();
     const item = db.prepare('SELECT * FROM menu_items WHERE id = ?').get(req.params.id);
     if (!item) return res.status(404).json({ success: false, message: 'Item not found' });

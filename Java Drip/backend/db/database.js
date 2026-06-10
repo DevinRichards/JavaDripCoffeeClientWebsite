@@ -347,6 +347,7 @@ function initializeDatabase() {
   ensureLocationDetails(db);
   ensurePresentationImages(db);
   ensureNormalizedMenuLabels(db);
+  ensureFlavorAddons(db);
   ensureMenuDescriptions(db);
   ensureBootstrapAdmin(db);
 
@@ -431,6 +432,54 @@ function ensureMenuDescriptions(db) {
   });
 
   backfillDescriptions(missingDescriptions);
+}
+
+function ensureFlavorAddons(db) {
+  const flavorItems = SEED_MENU_ITEMS.filter((item) => item[0] === 'flavors');
+  if (flavorItems.length === 0) return;
+
+  const upsertFlavorCategory = db.prepare(`
+    INSERT INTO menu_categories (id, name, subtitle, sort_order, clover_category_id)
+    VALUES ('flavors', 'Flavors', 'Free syrup and fruit flavor options for pickup drinks', 25, NULL)
+    ON CONFLICT(id) DO UPDATE SET
+      name = excluded.name,
+      subtitle = excluded.subtitle,
+      sort_order = excluded.sort_order
+  `);
+  const findExistingFlavor = db.prepare(`
+    SELECT id
+    FROM menu_items
+    WHERE category_id = 'flavors' AND lower(trim(name)) = lower(trim(?))
+  `);
+  const insertFlavor = db.prepare(`
+    INSERT INTO menu_items (category_id, name, description, price, image_url, badge, active, sort_order, clover_item_id)
+    VALUES (?, ?, ?, ?, NULL, NULL, ?, ?, ?)
+  `);
+  const updateFlavor = db.prepare(`
+    UPDATE menu_items
+    SET description = ?,
+        price = 0,
+        active = 1,
+        sort_order = ?
+    WHERE id = ?
+  `);
+
+  const upsertFlavors = db.transaction(() => {
+    upsertFlavorCategory.run();
+
+    for (const flavor of flavorItems) {
+      const [, name, description, price, active, sortOrder, cloverItemId] = flavor;
+      const existing = findExistingFlavor.get(name);
+
+      if (existing) {
+        updateFlavor.run(description, sortOrder, existing.id);
+      } else {
+        insertFlavor.run('flavors', name, description, price, active, sortOrder, cloverItemId);
+      }
+    }
+  });
+
+  upsertFlavors();
 }
 
 function ensureNormalizedMenuLabels(db) {

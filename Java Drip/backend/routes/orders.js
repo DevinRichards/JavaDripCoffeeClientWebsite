@@ -18,7 +18,7 @@ const GRT_RATE = 0.084375;
 const ESTIMATED_FEES = 0;
 const VALID_ORDER_TYPES = new Set(['pickup']);
 const VALID_PAYMENT_METHODS = new Set(['online']);
-const ADDON_CATEGORY_NAMES = new Set(['add ons', 'milk options']);
+const ADDON_CATEGORY_NAMES = new Set(['add ons', 'flavors', 'milk options']);
 const PICKUP_SLOT_INTERVAL_MINUTES = 15;
 
 function formatMoney(value) {
